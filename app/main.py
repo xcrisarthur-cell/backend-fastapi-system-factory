@@ -4,7 +4,8 @@ from app.database import Base, engine
 from app.routers import (
     worker, position, sub_position,
     shift, supplier, item,
-    problem_comment, production_log
+    problem_comment, production_log,
+    division, department
 )
 
 app = FastAPI(title="MKP Operational API")
@@ -22,6 +23,9 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
+# Include all routers
+app.include_router(division.router)
+app.include_router(department.router)
 app.include_router(worker.router)
 app.include_router(position.router)
 app.include_router(sub_position.router)

@@ -5,12 +5,16 @@ from app import models, schemas
 
 router = APIRouter(prefix="/problem-comments", tags=["Problem Comments"])
 
+
 @router.get("/", response_model=list[schemas.ProblemCommentResponse])
 def get_comments(db: Session = Depends(get_db)):
+    """Get all problem comments"""
     return db.query(models.ProblemComment).all()
+
 
 @router.get("/{comment_id}", response_model=schemas.ProblemCommentResponse)
 def get_comment(comment_id: int, db: Session = Depends(get_db)):
+    """Get a problem comment by ID"""
     comment = db.query(models.ProblemComment)\
         .filter(models.ProblemComment.id == comment_id)\
         .first()
@@ -18,8 +22,10 @@ def get_comment(comment_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Problem comment tidak ditemukan")
     return comment
 
-@router.post("/", response_model=schemas.ProblemCommentResponse)
+
+@router.post("/", response_model=schemas.ProblemCommentResponse, status_code=201)
 def create_comment(data: schemas.ProblemCommentCreate, db: Session = Depends(get_db)):
+    """Create a new problem comment"""
     # Check if description already exists
     exists = db.query(models.ProblemComment)\
         .filter(models.ProblemComment.description == data.description)\
@@ -27,14 +33,16 @@ def create_comment(data: schemas.ProblemCommentCreate, db: Session = Depends(get
     if exists:
         raise HTTPException(status_code=400, detail="Problem comment description sudah ada")
     
-    comment = models.ProblemComment(**data.dict())
+    comment = models.ProblemComment(**data.model_dump())
     db.add(comment)
     db.commit()
     db.refresh(comment)
     return comment
 
+
 @router.put("/{comment_id}", response_model=schemas.ProblemCommentResponse)
 def update_comment(comment_id: int, data: schemas.ProblemCommentUpdate, db: Session = Depends(get_db)):
+    """Update a problem comment"""
     comment = db.query(models.ProblemComment)\
         .filter(models.ProblemComment.id == comment_id)\
         .first()
@@ -49,7 +57,7 @@ def update_comment(comment_id: int, data: schemas.ProblemCommentUpdate, db: Sess
         if exists:
             raise HTTPException(status_code=400, detail="Problem comment description sudah ada")
     
-    update_data = data.dict(exclude_unset=True)
+    update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(comment, field, value)
     
@@ -57,8 +65,10 @@ def update_comment(comment_id: int, data: schemas.ProblemCommentUpdate, db: Sess
     db.refresh(comment)
     return comment
 
+
 @router.delete("/{comment_id}")
 def delete_comment(comment_id: int, db: Session = Depends(get_db)):
+    """Delete a problem comment"""
     comment = db.query(models.ProblemComment)\
         .filter(models.ProblemComment.id == comment_id)\
         .first()

@@ -4,3 +4,7 @@ sqlalchemy
 psycopg2-binary
 python-dotenv
 pydantic
+alembic
+faker
+bcrypt>=4.0.0
+passlib[bcrypt]
