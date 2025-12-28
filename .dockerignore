@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+README*
+QUICK_START.md
+POSTMAN_COLLECTION_README.md
+README_MIGRATION_SEEDER.md
+
+# Postman
+*.postman_collection.json
+*.postman_environment.json
+
+# Database
+*.db
+*.sqlite
+databaseSchema.txt
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Check scripts
+check_setup.py
+run_migration.py
+seed.py
+
