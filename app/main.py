@@ -48,9 +48,11 @@ if allowed_origins_env:
 print(f"CORS Allowed Origins: {allowed_origins}")
 
 # Add CORS middleware - MUST be added before routers
+# Support Vercel preview deployments with regex pattern
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel preview deployments
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],

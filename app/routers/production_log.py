@@ -91,6 +91,7 @@ def get_log(log_id: int, db: Session = Depends(get_db)):
     return _format_production_log_response(log)
 
 
+@router.post("", response_model=schemas.ProductionLogResponse, status_code=201)
 @router.post("/", response_model=schemas.ProductionLogResponse, status_code=201)
 def create_log(data: schemas.ProductionLogCreate, db: Session = Depends(get_db)):
     """Create a new production log"""
