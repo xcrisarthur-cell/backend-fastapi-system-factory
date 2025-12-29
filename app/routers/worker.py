@@ -37,6 +37,7 @@ def login_worker(login_data: WorkerLogin, db: Session = Depends(get_db)):
     return worker
 
 
+@router.get("", response_model=list[schemas.WorkerResponse])
 @router.get("/", response_model=list[schemas.WorkerResponse])
 def get_workers(db: Session = Depends(get_db)):
     """Get all workers with their position and department information"""

@@ -6,6 +6,7 @@ from app import models, schemas
 router = APIRouter(prefix="/positions", tags=["Positions"])
 
 
+@router.get("", response_model=list[schemas.PositionResponse])
 @router.get("/", response_model=list[schemas.PositionResponse])
 def get_positions(db: Session = Depends(get_db)):
     """Get all positions"""

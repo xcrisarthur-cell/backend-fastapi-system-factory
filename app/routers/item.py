@@ -6,6 +6,7 @@ from app import models, schemas
 router = APIRouter(prefix="/items", tags=["Items"])
 
 
+@router.get("", response_model=list[schemas.ItemResponse])
 @router.get("/", response_model=list[schemas.ItemResponse])
 def get_items(db: Session = Depends(get_db)):
     """Get all items"""

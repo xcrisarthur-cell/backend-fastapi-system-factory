@@ -47,6 +47,7 @@ def _format_production_log_response(log: models.ProductionLog) -> schemas.Produc
     return schemas.ProductionLogResponse.model_validate(log_dict)
 
 
+@router.get("", response_model=list[schemas.ProductionLogResponse])
 @router.get("/", response_model=list[schemas.ProductionLogResponse])
 def get_logs(db: Session = Depends(get_db)):
     """Get all production logs with all related data"""

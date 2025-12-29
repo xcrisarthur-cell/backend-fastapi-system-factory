@@ -6,6 +6,7 @@ from app import models, schemas
 router = APIRouter(prefix="/problem-comments", tags=["Problem Comments"])
 
 
+@router.get("", response_model=list[schemas.ProblemCommentResponse])
 @router.get("/", response_model=list[schemas.ProblemCommentResponse])
 def get_comments(db: Session = Depends(get_db)):
     """Get all problem comments"""

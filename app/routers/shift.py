@@ -6,6 +6,7 @@ from app import models, schemas
 router = APIRouter(prefix="/shifts", tags=["Shifts"])
 
 
+@router.get("", response_model=list[schemas.ShiftResponse])
 @router.get("/", response_model=list[schemas.ShiftResponse])
 def get_shifts(db: Session = Depends(get_db)):
     """Get all shifts"""

@@ -6,6 +6,7 @@ from app import models, schemas
 router = APIRouter(prefix="/departments", tags=["Departments"])
 
 
+@router.get("", response_model=list[schemas.DepartmentResponse])
 @router.get("/", response_model=list[schemas.DepartmentResponse])
 def get_departments(db: Session = Depends(get_db)):
     """Get all departments with their division information"""

@@ -6,6 +6,7 @@ from app import models, schemas
 router = APIRouter(prefix="/divisions", tags=["Divisions"])
 
 
+@router.get("", response_model=list[schemas.DivisionResponse])
 @router.get("/", response_model=list[schemas.DivisionResponse])
 def get_divisions(db: Session = Depends(get_db)):
     """Get all divisions"""
