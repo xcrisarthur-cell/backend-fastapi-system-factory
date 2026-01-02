@@ -468,7 +468,7 @@ def seed_items(db: Session, priority_data: dict):
     return items
 
 
-def seed_problem_comments(db: Session, count: int = 20):
+def seed_problem_comments(db: Session, count: int = 5):
     """Seed problem comments with random data"""
     print(f"Seeding {count} problem comments...")
     problem_comments = []
@@ -747,7 +747,7 @@ def main():
         production_logs = seed_production_logs(
             db, workers, positions, sub_positions,
             shifts, suppliers, items, problem_comments,
-            dept_map, count=300
+            dept_map, count=10
         )
         production_targets = seed_production_targets(db, positions, sub_positions, count=10)
         attendances = seed_attendances(db, workers, count=10)
