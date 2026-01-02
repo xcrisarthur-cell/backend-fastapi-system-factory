@@ -6,7 +6,8 @@ from app.routers import (
     worker, position, sub_position,
     shift, supplier, item,
     problem_comment, production_log,
-    division, department
+    division, department,
+    production_target, attendance
 )
 
 app = FastAPI(
@@ -77,3 +78,5 @@ app.include_router(supplier.router)
 app.include_router(item.router)
 app.include_router(problem_comment.router)
 app.include_router(production_log.router)
+app.include_router(production_target.router)
+app.include_router(attendance.router)

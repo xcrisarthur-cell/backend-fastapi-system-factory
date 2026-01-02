@@ -215,3 +215,8 @@ Jika ada pertanyaan atau masalah:
 3. Pastikan base_url sudah benar
 4. Pastikan CORS sudah dikonfigurasi jika testing dari browser
 
+
+
+
+
+

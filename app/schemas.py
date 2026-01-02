@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date as date_type, time as time_type
+from app.models import AttendanceStatus
 
 
 # ========= DIVISION =========
@@ -248,6 +249,62 @@ class ProductionLogResponse(BaseModel):
     approved_coordinator_by_worker: Optional[WorkerResponse] = None
     approved_spv_by_worker: Optional[WorkerResponse] = None
     problem_comments: Optional[List[ProblemCommentResponse]] = None
+
+    class Config:
+        from_attributes = True
+
+
+# ========= PRODUCTION TARGET =========
+class ProductionTargetCreate(BaseModel):
+    target: float
+    position_id: Optional[int] = None
+    sub_position_id: Optional[int] = None
+
+
+class ProductionTargetUpdate(BaseModel):
+    target: Optional[float] = None
+    position_id: Optional[int] = None
+    sub_position_id: Optional[int] = None
+
+
+class ProductionTargetResponse(ProductionTargetCreate):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    # Nested relationships
+    position: Optional[PositionResponse] = None
+    sub_position: Optional[SubPositionResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
+# ========= ATTENDANCE =========
+class AttendanceCreate(BaseModel):
+    worker_id: int
+    status: AttendanceStatus
+    date: date_type
+    time: time_type
+    notes: Optional[str] = None
+    approved_coordinator: Optional[bool] = False
+    approved_supervisor: Optional[bool] = False
+
+
+class AttendanceUpdate(BaseModel):
+    worker_id: Optional[int] = None
+    status: Optional[AttendanceStatus] = None
+    date: Optional[date_type] = None
+    time: Optional[time_type] = None
+    notes: Optional[str] = None
+    approved_coordinator: Optional[bool] = None
+    approved_supervisor: Optional[bool] = None
+
+
+class AttendanceResponse(AttendanceCreate):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    worker: Optional[WorkerResponse] = None
 
     class Config:
         from_attributes = True

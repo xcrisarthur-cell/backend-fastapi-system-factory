@@ -3,6 +3,7 @@ import os
 import sys
 import csv
 import re
+import argparse
 from decimal import Decimal
 from datetime import datetime, timedelta
 import random
@@ -16,11 +17,13 @@ load_dotenv()
 sys.path.insert(0, os.path.dirname(__file__))
 
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, engine
+from sqlalchemy import text
+from app.database import SessionLocal, engine, Base
 from app.models import (
     Division, Department, Position, SubPosition,
     Worker, Shift, Supplier, Item, ProblemComment,
-    ProductionLog, ProductionLogProblemComment
+    ProductionLog, ProductionLogProblemComment,
+    ProductionTarget, Attendance, AttendanceStatus
 )
 from app.security import hash_password
 
@@ -34,6 +37,8 @@ def get_priority_data():
     return {
         'divisions': [
             'Kawat',
+            'Rangka',
+            'Bantal',
             'IT'
         ],
         'departments': [
@@ -44,13 +49,20 @@ def get_priority_data():
             'Superadmin'
         ],
         'positions': [
-            {'code': 'PER', 'unit': 'pcs'},
-            {'code': 'RAM', 'unit': 'lmbr'},
-            {'code': 'TEMBAK', 'unit': 'lmbr'},
-            {'code': 'POCKET', 'unit': 'pcs'},
-            {'code': 'ASSEMBLY', 'unit': 'lmbr'},
-            {'code': 'FRAME', 'unit': 'pcs'},
-            {'code': 'SUPPLY', 'unit': 'lmbr'},
+            {'code': 'PER', 'unit': 'pcs', 'name': 'Per'},
+            {'code': 'RAM', 'unit': 'lmbr', 'name': 'Ram'},
+            {'code': 'TEMBAK_KAWAT', 'unit': 'lmbr', 'name': 'Tembak(Kawat)'},
+            {'code': 'POCKET', 'unit': 'pcs', 'name': 'Pocket'},
+            {'code': 'ASSEMBLY', 'unit': 'lmbr', 'name': 'Assembly'},
+            {'code': 'FRAME', 'unit': 'pcs', 'name': 'Frame'},
+            {'code': 'SUPPLY', 'unit': 'lmbr', 'name': 'Supply'},
+            {'code': 'POTONG', 'unit': 'pcs', 'name': 'Potong'},
+            {'code': 'TEMBAK_RANGKA', 'unit': 'lmbr', 'name': 'Tembak(Rangka)'},
+            {'code': 'FG', 'unit': 'pcs', 'name': 'Finish Good(FG)'},
+            {'code': 'PRP', 'unit': 'pcs', 'name': 'PRP'},
+            {'code': 'ISI', 'unit': 'pcs', 'name': 'ISI'},
+            {'code': 'JAHIT', 'unit': 'pcs', 'name': 'Jahit'},
+            {'code': 'PACKING', 'unit': 'pcs', 'name': 'Packing'},
         ],
         'sub_positions': [
             {'code': 'FC60', 'position_code': 'PER'},
@@ -60,9 +72,9 @@ def get_priority_data():
             {'code': 'SX200', 'position_code': 'RAM'},
             {'code': 'AS3-NEW', 'position_code': 'RAM'},
             {'code': 'AS3-OLD', 'position_code': 'RAM'},
-            {'code': 'MEJA-1', 'position_code': 'TEMBAK'},
-            {'code': 'MEJA-2', 'position_code': 'TEMBAK'},
-            {'code': 'MEJA-3', 'position_code': 'TEMBAK'},
+            {'code': 'MEJA-1', 'position_code': 'TEMBAK_KAWAT'},
+            {'code': 'MEJA-2', 'position_code': 'TEMBAK_KAWAT'},
+            {'code': 'MEJA-3', 'position_code': 'TEMBAK_KAWAT'},
             {'code': 'LSPR180', 'position_code': 'POCKET'},
             {'code': 'LSPR-NEW', 'position_code': 'POCKET'},
             {'code': 'LSPR-OLD', 'position_code': 'POCKET'},
@@ -78,6 +90,7 @@ def get_priority_data():
             'Kingdom'
         ],
         'workers': [
+            # Existing workers updated with new codes if needed
             {'name': 'Slamet Purnomo', 'position_code': 'PER', 'department_name': 'Operator'},
             {'name': 'M Husen Ali', 'position_code': 'PER', 'department_name': 'Operator'},
             {'name': 'Edi Suhardi', 'position_code': 'PER', 'department_name': 'Operator'},
@@ -90,12 +103,12 @@ def get_priority_data():
             {'name': 'Bangkit Prayoga', 'position_code': 'RAM', 'department_name': 'Operator'},
             {'name': 'Fajar Aditya', 'position_code': 'RAM', 'department_name': 'Operator'},
             {'name': 'Khafit', 'position_code': 'RAM', 'department_name': 'Operator'},
-            {'name': 'Albert Ikhbal', 'position_code': 'TEMBAK', 'department_name': 'Operator'},
-            {'name': 'Suyanto', 'position_code': 'TEMBAK', 'department_name': 'Operator'},
-            {'name': 'Ryandi', 'position_code': 'TEMBAK', 'department_name': 'Operator'},
-            {'name': 'Radika', 'position_code': 'TEMBAK', 'department_name': 'Operator'},
-            {'name': 'Dedi', 'position_code': 'TEMBAK', 'department_name': 'Operator'},
-            {'name': 'M Iqhbal', 'position_code': 'TEMBAK', 'department_name': 'Operator'},
+            {'name': 'Albert Ikhbal', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'Suyanto', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'Ryandi', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'Radika', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'Dedi', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'M Iqhbal', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
             {'name': 'Jiman', 'position_code': 'POCKET', 'department_name': 'Operator'},
             {'name': 'Firmansyah', 'position_code': 'POCKET', 'department_name': 'Operator'},
             {'name': 'Cahdiana', 'position_code': 'POCKET', 'department_name': 'Operator'},
@@ -108,6 +121,19 @@ def get_priority_data():
             {'name': 'Afian Nurcahyo', 'position_code': 'FRAME', 'department_name': 'Operator'},
             {'name': 'Karnila', 'position_code': 'SUPPLY', 'department_name': 'Operator'},
             {'name': 'Faiz Fadrul', 'position_code': 'SUPPLY', 'department_name': 'Operator'},
+            # New workers requested by user
+            {'name': 'Zuriana', 'position_code': 'POTONG', 'department_name': 'Operator'},
+            {'name': 'Ardi Kurniawan', 'position_code': 'POTONG', 'department_name': 'Operator'},
+            {'name': 'Andika Yogastira', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
+            {'name': 'Reka Dara S', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
+            {'name': 'Dani Setiawan', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
+            {'name': 'Tarsius', 'position_code': 'FG', 'department_name': 'Operator'},
+            {'name': 'Ngaliman', 'position_code': 'PRP', 'department_name': 'Operator'},
+            {'name': 'Yogi', 'position_code': 'ISI', 'department_name': 'Operator'},
+            {'name': 'Andreas', 'position_code': 'ISI', 'department_name': 'Operator'},
+            {'name': 'Tandi', 'position_code': 'JAHIT', 'department_name': 'Operator'},
+            {'name': 'Adman Husen', 'position_code': 'PACKING', 'department_name': 'Operator'},
+            # Admin/Management
             {'name': 'Zaenal Arifin', 'position_code': None, 'department_name': 'Koordinator', 'password': 'zaenal1'},
             {'name': 'Prido Sagala', 'position_code': None, 'department_name': 'Supervisor', 'password': 'prido1'},
             {'name': 'Kiky', 'position_code': None, 'department_name': 'Admin Produksi', 'password': 'kiky1'},
@@ -259,7 +285,7 @@ def seed_divisions(db: Session, priority_data: dict):
         db.add(division)
     
     db.commit()
-    print(f"✓ Created {len(divisions)} divisions")
+    print(f"[OK] Created {len(divisions)} divisions")
     return divisions, division_map
 
 
@@ -288,7 +314,7 @@ def seed_departments(db: Session, divisions: list, division_map: dict, priority_
         db.add(department)
     
     db.commit()
-    print(f"✓ Created {len(departments)} departments")
+    print(f"[OK] Created {len(departments)} departments")
     return departments, dept_map
 
 
@@ -302,9 +328,11 @@ def seed_positions(db: Session, priority_data: dict):
     for pos in pos_data:
         code = pos['code'].upper()
         unit = pos['unit']
+        name = pos.get('name')
         
         position = Position(
             code=code,
+            name=name,
             unit=unit
         )
         positions.append(position)
@@ -312,7 +340,7 @@ def seed_positions(db: Session, priority_data: dict):
         db.add(position)
     
     db.commit()
-    print(f"✓ Created {len(positions)} positions")
+    print(f"[OK] Created {len(positions)} positions")
     return positions, position_map
 
 
@@ -337,7 +365,7 @@ def seed_sub_positions(db: Session, positions: list, position_map: dict, priorit
             print(f"Warning: Position code '{position_code}' not found for sub position '{code}'")
     
     db.commit()
-    print(f"✓ Created {len(sub_positions)} sub positions")
+    print(f"[OK] Created {len(sub_positions)} sub positions")
     return sub_positions
 
 
@@ -384,7 +412,7 @@ def seed_workers(db: Session, positions: list, position_map: dict, departments: 
         db.add(worker)
     
     db.commit()
-    print(f"✓ Created {len(workers)} workers")
+    print(f"[OK] Created {len(workers)} workers")
     return workers
 
 
@@ -400,7 +428,7 @@ def seed_shifts(db: Session, priority_data: dict):
         db.add(shift)
     
     db.commit()
-    print(f"✓ Created {len(shifts)} shifts")
+    print(f"[OK] Created {len(shifts)} shifts")
     return shifts
 
 
@@ -416,7 +444,7 @@ def seed_suppliers(db: Session, priority_data: dict):
         db.add(supplier)
     
     db.commit()
-    print(f"✓ Created {len(suppliers)} suppliers")
+    print(f"[OK] Created {len(suppliers)} suppliers")
     return suppliers
 
 
@@ -436,7 +464,7 @@ def seed_items(db: Session, priority_data: dict):
         db.add(item)
     
     db.commit()
-    print(f"✓ Created {len(items)} items")
+    print(f"[OK] Created {len(items)} items")
     return items
 
 
@@ -447,25 +475,9 @@ def seed_problem_comments(db: Session, count: int = 20):
     
     descriptions = [
         "Mesin rusak",
-        "Kekurangan material",
-        "Masalah kualitas",
         "Pemadaman listrik",
-        "Kerusakan alat",
         "Kesalahan operator",
-        "Cacat material",
-        "Pemeliharaan peralatan",
-        "Keterlambatan pengiriman material",
-        "Garis produksi terhenti",
-        "Penolakan kontrol kualitas",
-        "Masalah keselamatan",
-        "Masalah suhu",
-        "Masalah kelembaban",
-        "Perlu kalibrasi",
-        "Masalah konfigurasi mesin",
-        "Gangguan listrik",
-        "Keterlambatan setup",
-        "Masalah transportasi",
-        "Kesalahan pengukuran"
+        "Cacat material"
     ]
     
     for i in range(count):
@@ -478,7 +490,7 @@ def seed_problem_comments(db: Session, count: int = 20):
         db.add(problem_comment)
     
     db.commit()
-    print(f"✓ Created {len(problem_comments)} problem comments")
+    print(f"[OK] Created {len(problem_comments)} problem comments")
     return problem_comments
 
 
@@ -492,7 +504,7 @@ def seed_production_logs(
     items: list,
     problem_comments: list,
     dept_map: dict,
-    count: int = 300
+    count: int = 10
 ):
     """Seed production logs with random data"""
     print(f"Seeding {count} production logs...")
@@ -587,7 +599,7 @@ def seed_production_logs(
         db.add(production_log)
     
     db.commit()
-    print(f"✓ Created {len(production_logs)} production logs")
+    print(f"[OK] Created {len(production_logs)} production logs")
     
     # Seed production_log_problem_comments (many-to-many)
     print("Linking problem comments to production logs...")
@@ -607,9 +619,64 @@ def seed_production_logs(
                 plpc_count += 1
     
     db.commit()
-    print(f"✓ Created {plpc_count} production log problem comment links")
+    print(f"[OK] Created {plpc_count} production log problem comment links")
     
     return production_logs
+
+
+def seed_production_targets(db: Session, positions: list, sub_positions: list, count: int = 10):
+    """Seed production targets with random data"""
+    print(f"Seeding {count} production targets...")
+    targets = []
+    
+    for _ in range(count):
+        position = random.choice(positions)
+        
+        # Get sub_positions that belong to this position
+        position_sub_positions = [sp for sp in sub_positions if sp.position_id == position.id]
+        sub_position = random.choice(position_sub_positions) if position_sub_positions and random.random() > 0.3 else None
+        
+        target_value = Decimal(str(round(random.uniform(100, 1000), 2)))
+        
+        target = ProductionTarget(
+            target=target_value,
+            position_id=position.id,
+            sub_position_id=sub_position.id if sub_position else None
+        )
+        targets.append(target)
+        db.add(target)
+    
+    db.commit()
+    print(f"[OK] Created {len(targets)} production targets")
+    return targets
+
+
+def seed_attendances(db: Session, workers: list, count: int = 10):
+    """Seed attendances with random data"""
+    print(f"Seeding {count} attendances...")
+    attendances = []
+    
+    for _ in range(count):
+        worker = random.choice(workers)
+        status = random.choice(list(AttendanceStatus))
+        date = fake.date_between(start_date='-30d', end_date='today')
+        time = fake.time_object()
+        
+        attendance = Attendance(
+            worker_id=worker.id,
+            status=status,
+            date=date,
+            time=time,
+            notes=fake.sentence() if random.random() > 0.5 else None,
+            approved_coordinator=random.choice([True, False, None]),
+            approved_supervisor=random.choice([True, False, None])
+        )
+        attendances.append(attendance)
+        db.add(attendance)
+        
+    db.commit()
+    print(f"[OK] Created {len(attendances)} attendances")
+    return attendances
 
 
 def main():
@@ -636,14 +703,36 @@ def main():
     db: Session = SessionLocal()
     
     try:
-        # Ask for confirmation
-        response = input("\nThis will clear all existing data. Continue? (yes/no): ")
-        if response.lower() not in ['yes', 'y']:
-            print("Seeder cancelled.")
-            return
+        # Check for --yes flag
+        parser = argparse.ArgumentParser(description='Seed database with initial data')
+        parser.add_argument('--yes', '-y', action='store_true', help='Skip confirmation prompt')
+        args = parser.parse_args()
         
-        # Clear database
-        clear_database(db)
+        # Ask for confirmation if --yes flag not provided
+        if not args.yes:
+            response = input("\nThis will DROP ALL TABLES and recreate them. Continue? (yes/no): ")
+            if response.lower() not in ['yes', 'y']:
+                print("Seeder cancelled.")
+                return
+        
+        # Drop and recreate tables
+        print("\nDropping all tables (CASCADE)...")
+        with engine.connect() as connection:
+            connection.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public;"))
+            connection.commit()
+            
+        print("Running Alembic migrations...")
+        from alembic.config import Config
+        from alembic import command
+        
+        # Ensure we are in the project root
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        alembic_ini_path = os.path.join(current_dir, "alembic.ini")
+        
+        alembic_cfg = Config(alembic_ini_path)
+        command.upgrade(alembic_cfg, "head")
+        
+        print("Database schema reset via Alembic!")
         
         # Seed in order (respecting foreign keys)
         divisions, division_map = seed_divisions(db, priority_data)
@@ -660,9 +749,11 @@ def main():
             shifts, suppliers, items, problem_comments,
             dept_map, count=300
         )
+        production_targets = seed_production_targets(db, positions, sub_positions, count=10)
+        attendances = seed_attendances(db, workers, count=10)
         
         print("\n" + "=" * 60)
-        print("✓ Seeding completed successfully!")
+        print("[OK] Seeding completed successfully!")
         print("=" * 60)
         print(f"\nSummary:")
         print(f"  - Divisions: {len(divisions)}")
@@ -675,11 +766,13 @@ def main():
         print(f"  - Items: {len(items)}")
         print(f"  - Problem Comments: {len(problem_comments)}")
         print(f"  - Production Logs: {len(production_logs)}")
+        print(f"  - Production Targets: {len(production_targets)}")
+        print(f"  - Attendances: {len(attendances)}")
         print()
         
     except Exception as e:
         db.rollback()
-        print(f"\n✗ Error occurred: {str(e)}")
+        print(f"\n[ERROR] Error occurred: {str(e)}")
         import traceback
         traceback.print_exc()
     finally:

@@ -51,3 +51,8 @@ Buka browser console di `https://mkp-operational.vercel.app` dan cek apakah erro
 
 Lihat `CORS_SETUP.md` untuk dokumentasi lengkap dan advanced configuration.
 
+
+
+
+
+

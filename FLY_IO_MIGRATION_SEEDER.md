@@ -191,3 +191,8 @@ Pastikan semua dependencies sudah terinstall. Cek `requirements.txt` dan pastika
 **Catatan:** Migration sudah otomatis berjalan saat aplikasi start. Seeder perlu dijalankan manual jika ingin mengisi data awal.
 
 
+
+
+
+
+

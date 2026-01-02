@@ -96,3 +96,8 @@ JOIN items i ON pl.item_id = i.id;
 
 Lihat `DBeaver_Connection_Guide.md` untuk panduan lengkap.
 
+
+
+
+
+

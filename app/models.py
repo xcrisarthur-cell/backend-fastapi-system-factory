@@ -1,11 +1,34 @@
 from sqlalchemy import (
     Column, Integer, String, ForeignKey, BigInteger,
-    Numeric, CheckConstraint, TIMESTAMP, Boolean, Text
+    Numeric, CheckConstraint, TIMESTAMP, Boolean, Text, Enum, Date, Time
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
+import enum
 
+class AttendanceStatus(str, enum.Enum):
+    HADIR = "HADIR"
+    IJIN = "IJIN"
+    CUTI = "CUTI"
+    ALPA = "ALPA"
+
+class Attendance(Base):
+    __tablename__ = "attendances"
+
+    id = Column(Integer, primary_key=True)
+    worker_id = Column(Integer, ForeignKey("workers.id", ondelete="CASCADE"), nullable=False)
+    status = Column(Enum(AttendanceStatus), nullable=False)
+    date = Column(Date, nullable=False)
+    time = Column(Time, nullable=False)
+    notes = Column(Text, nullable=True)
+    approved_coordinator = Column(Boolean, default=False, nullable=True)
+    approved_supervisor = Column(Boolean, default=False, nullable=True)
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relationships
+    worker = relationship("Worker", back_populates="attendances")
 
 class Division(Base):
     __tablename__ = "divisions"
@@ -35,14 +58,31 @@ class Department(Base):
     )
 
 
+class ProductionTarget(Base):
+    __tablename__ = "production_targets"
+
+    id = Column(Integer, primary_key=True)
+    target = Column(Numeric(10, 2), nullable=False)
+    position_id = Column(Integer, ForeignKey("positions.id", ondelete="SET NULL"), nullable=True)
+    sub_position_id = Column(Integer, ForeignKey("sub_positions.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relationships
+    position = relationship("Position", back_populates="production_targets", foreign_keys=[position_id])
+    sub_position = relationship("SubPosition", back_populates="production_targets", foreign_keys=[sub_position_id])
+
+
 class Position(Base):
     __tablename__ = "positions"
 
     id = Column(Integer, primary_key=True)
     code = Column(String(20), unique=True, nullable=False)
+    name = Column(String(50), nullable=True)
     unit = Column(String(10), nullable=False)
 
     # Relationships
+    production_targets = relationship("ProductionTarget", back_populates="position")
     sub_positions = relationship("SubPosition", back_populates="position", cascade="all, delete-orphan")
     workers = relationship("Worker", back_populates="position", cascade="all, delete-orphan")
     production_logs = relationship("ProductionLog", back_populates="position", cascade="all, delete-orphan")
@@ -61,6 +101,7 @@ class SubPosition(Base):
     code = Column(String(30), nullable=False)
 
     # Relationships
+    production_targets = relationship("ProductionTarget", back_populates="sub_position")
     position = relationship("Position", back_populates="sub_positions")
     production_logs = relationship("ProductionLog", back_populates="sub_position", cascade="all, delete-orphan")
 
@@ -84,6 +125,7 @@ class Worker(Base):
     production_logs = relationship("ProductionLog", back_populates="worker", foreign_keys="ProductionLog.worker_id", cascade="all, delete-orphan")
     approved_coordinator_logs = relationship("ProductionLog", back_populates="approved_coordinator_by_worker", foreign_keys="ProductionLog.approved_coordinator_by", cascade="all, delete-orphan")
     approved_spv_logs = relationship("ProductionLog", back_populates="approved_spv_by_worker", foreign_keys="ProductionLog.approved_spv_by", cascade="all, delete-orphan")
+    attendances = relationship("Attendance", back_populates="worker", cascade="all, delete-orphan")
 
     __table_args__ = (
         {"extend_existing": True}

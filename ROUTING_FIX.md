@@ -53,3 +53,8 @@ Sekarang endpoint mendukung kedua format:
 - PUT dan DELETE tidak terpengaruh karena menggunakan path parameter `/{log_id}`
 - Perbaikan ini memastikan konsistensi dengan frontend yang menggunakan format tanpa trailing slash
 
+
+
+
+
+

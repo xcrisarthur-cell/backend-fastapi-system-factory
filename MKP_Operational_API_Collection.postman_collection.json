@@ -1,406 +1,30 @@
 {
 	"info": {
 		"_postman_id": "mkp-operational-api-collection",
-		"name": "MKP Operational API",
-		"description": "Complete API collection for MKP Operational System with all CRUD operations",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"name": "MKP Operational API - Complete Collection",
+		"description": "Complete API collection for MKP Operational System Factory with all endpoints organized by resource type.\n\n**Base URL:** Use `{{base_url}}` variable from environment\n\n**Environments:**\n- Local: http://127.0.0.1:8000\n- Production: https://backend-fastapi-system-factory.fly.dev",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "mkp-operational"
 	},
 	"item": [
 		{
-			"name": "Divisions",
+			"name": "Health Check",
 			"item": [
 				{
-					"name": "Get All Divisions",
+					"name": "Health Check",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/divisions",
-							"host": ["{{base_url}}"],
-							"path": ["divisions"]
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
 						},
-						"description": "Get all divisions"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Division by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/divisions/1",
-							"host": ["{{base_url}}"],
-							"path": ["divisions", "1"]
-						},
-						"description": "Get a division by ID"
-					},
-					"response": []
-				},
-				{
-					"name": "Create Division",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"code\": \"DIV001\",\n    \"name\": \"Operations Division\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/divisions",
-							"host": ["{{base_url}}"],
-							"path": ["divisions"]
-						},
-						"description": "Create a new division"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Division",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"code\": \"DIV001\",\n    \"name\": \"Operations Division Updated\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/divisions/1",
-							"host": ["{{base_url}}"],
-							"path": ["divisions", "1"]
-						},
-						"description": "Update a division"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Division",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/divisions/1",
-							"host": ["{{base_url}}"],
-							"path": ["divisions", "1"]
-						},
-						"description": "Delete a division"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Departments",
-			"item": [
-				{
-					"name": "Get All Departments",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/departments",
-							"host": ["{{base_url}}"],
-							"path": ["departments"]
-						},
-						"description": "Get all departments with division information"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Department by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/departments/1",
-							"host": ["{{base_url}}"],
-							"path": ["departments", "1"]
-						},
-						"description": "Get a department by ID with division information"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Departments by Division",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/departments/by-division/1",
-							"host": ["{{base_url}}"],
-							"path": ["departments", "by-division", "1"]
-						},
-						"description": "Get all departments by division ID"
-					},
-					"response": []
-				},
-				{
-					"name": "Create Department",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"division_id\": 1,\n    \"code\": \"DEPT001\",\n    \"name\": \"Production Department\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/departments",
-							"host": ["{{base_url}}"],
-							"path": ["departments"]
-						},
-						"description": "Create a new department"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Department",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"code\": \"DEPT001\",\n    \"name\": \"Production Department Updated\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/departments/1",
-							"host": ["{{base_url}}"],
-							"path": ["departments", "1"]
-						},
-						"description": "Update a department"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Department",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/departments/1",
-							"host": ["{{base_url}}"],
-							"path": ["departments", "1"]
-						},
-						"description": "Delete a department"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Positions",
-			"item": [
-				{
-					"name": "Get All Positions",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/positions",
-							"host": ["{{base_url}}"],
-							"path": ["positions"]
-						},
-						"description": "Get all positions"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Position by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/positions/1",
-							"host": ["{{base_url}}"],
-							"path": ["positions", "1"]
-						},
-						"description": "Get a position by ID"
-					},
-					"response": []
-				},
-				{
-					"name": "Create Position",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"code\": \"POS001\",\n    \"unit\": \"pcs\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/positions",
-							"host": ["{{base_url}}"],
-							"path": ["positions"]
-						},
-						"description": "Create a new position. Unit must be 'pcs' or 'lmbr'"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Position",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"code\": \"POS001\",\n    \"unit\": \"lmbr\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/positions/1",
-							"host": ["{{base_url}}"],
-							"path": ["positions", "1"]
-						},
-						"description": "Update a position"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Position",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/positions/1",
-							"host": ["{{base_url}}"],
-							"path": ["positions", "1"]
-						},
-						"description": "Delete a position"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Sub Positions",
-			"item": [
-				{
-					"name": "Get All Sub Positions",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/sub-positions",
-							"host": ["{{base_url}}"],
-							"path": ["sub-positions"]
-						},
-						"description": "Get all sub positions with position information"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Sub Position by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/sub-positions/1",
-							"host": ["{{base_url}}"],
-							"path": ["sub-positions", "1"]
-						},
-						"description": "Get a sub position by ID with position information"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Sub Positions by Position",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/sub-positions/by-position/1",
-							"host": ["{{base_url}}"],
-							"path": ["sub-positions", "by-position", "1"]
-						},
-						"description": "Get all sub positions by position ID"
-					},
-					"response": []
-				},
-				{
-					"name": "Create Sub Position",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"position_id\": 1,\n    \"code\": \"SUB001\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/sub-positions",
-							"host": ["{{base_url}}"],
-							"path": ["sub-positions"]
-						},
-						"description": "Create a new sub position"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Sub Position",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"code\": \"SUB001_UPDATED\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/sub-positions/1",
-							"host": ["{{base_url}}"],
-							"path": ["sub-positions", "1"]
-						},
-						"description": "Update a sub position"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Sub Position",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/sub-positions/1",
-							"host": ["{{base_url}}"],
-							"path": ["sub-positions", "1"]
-						},
-						"description": "Delete a sub position"
+						"description": "Check API health status"
 					},
 					"response": []
 				}
@@ -410,16 +34,48 @@
 			"name": "Workers",
 			"item": [
 				{
+					"name": "Login Worker",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"worker_id\": 31,\n    \"password\": \"zaenal1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/workers/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workers",
+								"login"
+							]
+						},
+						"description": "Login worker by verifying password. Returns worker data if successful."
+					},
+					"response": []
+				},
+				{
 					"name": "Get All Workers",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/workers",
-							"host": ["{{base_url}}"],
-							"path": ["workers"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workers"
+							]
 						},
-						"description": "Get all workers with position and department information"
+						"description": "Get all workers with their position and department information"
 					},
 					"response": []
 				},
@@ -429,11 +85,22 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/workers/1",
-							"host": ["{{base_url}}"],
-							"path": ["workers", "1"]
+							"raw": "{{base_url}}/workers/:worker_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workers",
+								":worker_id"
+							],
+							"variable": [
+								{
+									"key": "worker_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Get a worker by ID with position and department information"
+						"description": "Get a worker by ID with their position and department information"
 					},
 					"response": []
 				},
@@ -449,14 +116,19 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"John Doe\",\n    \"position_id\": 1,\n    \"department_id\": 1\n}"
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"position_id\": 1,\n    \"department_id\": 1,\n    \"password\": \"password123\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/workers",
-							"host": ["{{base_url}}"],
-							"path": ["workers"]
+							"raw": "{{base_url}}/workers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workers",
+								""
+							]
 						},
-						"description": "Create a new worker"
+						"description": "Create a new worker. Password will be hashed automatically."
 					},
 					"response": []
 				},
@@ -475,11 +147,22 @@
 							"raw": "{\n    \"name\": \"John Doe Updated\",\n    \"position_id\": 2\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/workers/1",
-							"host": ["{{base_url}}"],
-							"path": ["workers", "1"]
+							"raw": "{{base_url}}/workers/:worker_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workers",
+								":worker_id"
+							],
+							"variable": [
+								{
+									"key": "worker_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Update a worker"
+						"description": "Update a worker. Only provided fields will be updated."
 					},
 					"response": []
 				},
@@ -489,11 +172,614 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/workers/1",
-							"host": ["{{base_url}}"],
-							"path": ["workers", "1"]
+							"raw": "{{base_url}}/workers/:worker_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"workers",
+								":worker_id"
+							],
+							"variable": [
+								{
+									"key": "worker_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Delete a worker"
+						"description": "Delete a worker by ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Divisions",
+			"item": [
+				{
+					"name": "Get All Divisions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/divisions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"divisions"
+							]
+						},
+						"description": "Get all divisions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Division by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/divisions/:division_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"divisions",
+								":division_id"
+							],
+							"variable": [
+								{
+									"key": "division_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get a division by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Division",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"DIV003\",\n    \"name\": \"Quality Control\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/divisions/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"divisions",
+								""
+							]
+						},
+						"description": "Create a new division"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Division",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Quality Control Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/divisions/:division_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"divisions",
+								":division_id"
+							],
+							"variable": [
+								{
+									"key": "division_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update a division"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Division",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/divisions/:division_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"divisions",
+								":division_id"
+							],
+							"variable": [
+								{
+									"key": "division_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete a division by ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Departments",
+			"item": [
+				{
+					"name": "Get All Departments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/departments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments"
+							]
+						},
+						"description": "Get all departments with their division information"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Department by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/departments/:department_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								":department_id"
+							],
+							"variable": [
+								{
+									"key": "department_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get a department by ID with division information"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Departments by Division",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/departments/by-division/:division_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								"by-division",
+								":division_id"
+							],
+							"variable": [
+								{
+									"key": "division_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get all departments by division ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Department",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"division_id\": 1,\n    \"code\": \"DEPT06\",\n    \"name\": \"Quality Assurance\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/departments/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								""
+							]
+						},
+						"description": "Create a new department"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Department",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Quality Assurance Updated\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/departments/:department_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								":department_id"
+							],
+							"variable": [
+								{
+									"key": "department_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update a department"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Department",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/departments/:department_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"departments",
+								":department_id"
+							],
+							"variable": [
+								{
+									"key": "department_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete a department by ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Positions",
+			"item": [
+				{
+					"name": "Get All Positions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/positions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions"
+							]
+						},
+						"description": "Get all positions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Position by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/positions/:position_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								":position_id"
+							],
+							"variable": [
+								{
+									"key": "position_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get a position by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Position",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"TEST\",\n    \"unit\": \"pcs\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/positions/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								""
+							]
+						},
+						"description": "Create a new position. Unit must be 'pcs' or 'lmbr'."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Position",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"unit\": \"lmbr\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/positions/:position_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								":position_id"
+							],
+							"variable": [
+								{
+									"key": "position_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update a position"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Position",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/positions/:position_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								":position_id"
+							],
+							"variable": [
+								{
+									"key": "position_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete a position by ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sub Positions",
+			"item": [
+				{
+					"name": "Get All Sub Positions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sub-positions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sub-positions"
+							]
+						},
+						"description": "Get all sub positions with their position information"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sub Position by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sub-positions/:sub_position_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sub-positions",
+								":sub_position_id"
+							],
+							"variable": [
+								{
+									"key": "sub_position_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get a sub position by ID with position information"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sub Positions by Position",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sub-positions/by-position/:position_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sub-positions",
+								"by-position",
+								":position_id"
+							],
+							"variable": [
+								{
+									"key": "position_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get all sub positions by position ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sub Position",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"position_id\": 1,\n    \"code\": \"TEST-01\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sub-positions/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sub-positions",
+								""
+							]
+						},
+						"description": "Create a new sub position"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Sub Position",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"TEST-01-UPDATED\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sub-positions/:sub_position_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sub-positions",
+								":sub_position_id"
+							],
+							"variable": [
+								{
+									"key": "sub_position_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Update a sub position"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Sub Position",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sub-positions/:sub_position_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sub-positions",
+								":sub_position_id"
+							],
+							"variable": [
+								{
+									"key": "sub_position_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Delete a sub position by ID"
 					},
 					"response": []
 				}
@@ -509,8 +795,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/shifts",
-							"host": ["{{base_url}}"],
-							"path": ["shifts"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"shifts"
+							]
 						},
 						"description": "Get all shifts"
 					},
@@ -522,9 +812,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/shifts/1",
-							"host": ["{{base_url}}"],
-							"path": ["shifts", "1"]
+							"raw": "{{base_url}}/shifts/:shift_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"shifts",
+								":shift_id"
+							],
+							"variable": [
+								{
+									"key": "shift_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Get a shift by ID"
 					},
@@ -542,12 +843,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Shift A\"\n}"
+							"raw": "{\n    \"name\": \"Shift 4\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/shifts",
-							"host": ["{{base_url}}"],
-							"path": ["shifts"]
+							"raw": "{{base_url}}/shifts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"shifts",
+								""
+							]
 						},
 						"description": "Create a new shift"
 					},
@@ -565,12 +871,23 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Shift A Updated\"\n}"
+							"raw": "{\n    \"name\": \"Shift 4 Updated\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/shifts/1",
-							"host": ["{{base_url}}"],
-							"path": ["shifts", "1"]
+							"raw": "{{base_url}}/shifts/:shift_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"shifts",
+								":shift_id"
+							],
+							"variable": [
+								{
+									"key": "shift_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Update a shift"
 					},
@@ -582,11 +899,22 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/shifts/1",
-							"host": ["{{base_url}}"],
-							"path": ["shifts", "1"]
+							"raw": "{{base_url}}/shifts/:shift_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"shifts",
+								":shift_id"
+							],
+							"variable": [
+								{
+									"key": "shift_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Delete a shift"
+						"description": "Delete a shift by ID"
 					},
 					"response": []
 				}
@@ -602,8 +930,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/suppliers",
-							"host": ["{{base_url}}"],
-							"path": ["suppliers"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"suppliers"
+							]
 						},
 						"description": "Get all suppliers"
 					},
@@ -615,9 +947,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/suppliers/1",
-							"host": ["{{base_url}}"],
-							"path": ["suppliers", "1"]
+							"raw": "{{base_url}}/suppliers/:supplier_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"suppliers",
+								":supplier_id"
+							],
+							"variable": [
+								{
+									"key": "supplier_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Get a supplier by ID"
 					},
@@ -635,12 +978,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Supplier ABC\"\n}"
+							"raw": "{\n    \"name\": \"Supplier Baru\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/suppliers",
-							"host": ["{{base_url}}"],
-							"path": ["suppliers"]
+							"raw": "{{base_url}}/suppliers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"suppliers",
+								""
+							]
 						},
 						"description": "Create a new supplier"
 					},
@@ -658,12 +1006,23 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Supplier ABC Updated\"\n}"
+							"raw": "{\n    \"name\": \"Supplier Baru Updated\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/suppliers/1",
-							"host": ["{{base_url}}"],
-							"path": ["suppliers", "1"]
+							"raw": "{{base_url}}/suppliers/:supplier_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"suppliers",
+								":supplier_id"
+							],
+							"variable": [
+								{
+									"key": "supplier_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Update a supplier"
 					},
@@ -675,11 +1034,22 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/suppliers/1",
-							"host": ["{{base_url}}"],
-							"path": ["suppliers", "1"]
+							"raw": "{{base_url}}/suppliers/:supplier_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"suppliers",
+								":supplier_id"
+							],
+							"variable": [
+								{
+									"key": "supplier_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Delete a supplier"
+						"description": "Delete a supplier by ID"
 					},
 					"response": []
 				}
@@ -695,36 +1065,63 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/items",
-							"host": ["{{base_url}}"],
-							"path": ["items"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"items"
+							]
 						},
 						"description": "Get all items"
 					},
 					"response": []
 				},
 				{
-					"name": "Get Item by ID",
+					"name": "Get Item by ID or Number",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/items/1",
-							"host": ["{{base_url}}"],
-							"path": ["items", "1"]
+							"raw": "{{base_url}}/items/:item_identifier",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"items",
+								":item_identifier"
+							],
+							"variable": [
+								{
+									"key": "item_identifier",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Get an item by ID"
+						"description": "Get an item by ID (integer) or item_number (string)"
 					},
 					"response": []
 				},
 				{
-					"name": "Get Item by Item Number",
+					"name": "Get Item by Number",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/items/number/ITEM001",
-							"host": ["{{base_url}}"],
-							"path": ["items", "number", "ITEM001"]
+							"raw": "{{base_url}}/items/number/:item_number",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"items",
+								"number",
+								":item_number"
+							],
+							"variable": [
+								{
+									"key": "item_number",
+									"value": "W1090001581224"
+								}
+							]
 						},
 						"description": "Get an item by item number"
 					},
@@ -742,12 +1139,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"item_number\": \"ITEM001\",\n    \"item_name\": \"Product A\",\n    \"spec\": \"Specification details here\"\n}"
+							"raw": "{\n    \"item_number\": \"W9999999999999\",\n    \"item_name\": \"Test Item\",\n    \"spec\": \"Test Specification\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/items",
-							"host": ["{{base_url}}"],
-							"path": ["items"]
+							"raw": "{{base_url}}/items/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"items",
+								""
+							]
 						},
 						"description": "Create a new item"
 					},
@@ -765,12 +1167,23 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"item_name\": \"Product A Updated\",\n    \"spec\": \"Updated specification\"\n}"
+							"raw": "{\n    \"item_name\": \"Test Item Updated\",\n    \"spec\": \"Updated Specification\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/items/1",
-							"host": ["{{base_url}}"],
-							"path": ["items", "1"]
+							"raw": "{{base_url}}/items/:item_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"items",
+								":item_id"
+							],
+							"variable": [
+								{
+									"key": "item_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Update an item by ID"
 					},
@@ -782,9 +1195,20 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/items/1",
-							"host": ["{{base_url}}"],
-							"path": ["items", "1"]
+							"raw": "{{base_url}}/items/:item_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"items",
+								":item_id"
+							],
+							"variable": [
+								{
+									"key": "item_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Delete an item by ID"
 					},
@@ -802,8 +1226,12 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/problem-comments",
-							"host": ["{{base_url}}"],
-							"path": ["problem-comments"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"problem-comments"
+							]
 						},
 						"description": "Get all problem comments"
 					},
@@ -815,9 +1243,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/problem-comments/1",
-							"host": ["{{base_url}}"],
-							"path": ["problem-comments", "1"]
+							"raw": "{{base_url}}/problem-comments/:comment_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"problem-comments",
+								":comment_id"
+							],
+							"variable": [
+								{
+									"key": "comment_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Get a problem comment by ID"
 					},
@@ -835,12 +1274,17 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"description\": \"Machine breakdown\"\n}"
+							"raw": "{\n    \"description\": \"Masalah baru\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/problem-comments",
-							"host": ["{{base_url}}"],
-							"path": ["problem-comments"]
+							"raw": "{{base_url}}/problem-comments/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"problem-comments",
+								""
+							]
 						},
 						"description": "Create a new problem comment"
 					},
@@ -858,12 +1302,23 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"description\": \"Machine breakdown - resolved\"\n}"
+							"raw": "{\n    \"description\": \"Masalah baru updated\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/problem-comments/1",
-							"host": ["{{base_url}}"],
-							"path": ["problem-comments", "1"]
+							"raw": "{{base_url}}/problem-comments/:comment_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"problem-comments",
+								":comment_id"
+							],
+							"variable": [
+								{
+									"key": "comment_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Update a problem comment"
 					},
@@ -875,11 +1330,22 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/problem-comments/1",
-							"host": ["{{base_url}}"],
-							"path": ["problem-comments", "1"]
+							"raw": "{{base_url}}/problem-comments/:comment_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"problem-comments",
+								":comment_id"
+							],
+							"variable": [
+								{
+									"key": "comment_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Delete a problem comment"
+						"description": "Delete a problem comment by ID"
 					},
 					"response": []
 				}
@@ -895,10 +1361,14 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/production-logs",
-							"host": ["{{base_url}}"],
-							"path": ["production-logs"]
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"production-logs"
+							]
 						},
-						"description": "Get all production logs with all related data (worker, position, department, shift, supplier, item, problem comments)"
+						"description": "Get all production logs with all related data (worker, position, shift, supplier, item, problem comments, etc.)"
 					},
 					"response": []
 				},
@@ -908,9 +1378,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/production-logs/1",
-							"host": ["{{base_url}}"],
-							"path": ["production-logs", "1"]
+							"raw": "{{base_url}}/production-logs/:log_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"production-logs",
+								":log_id"
+							],
+							"variable": [
+								{
+									"key": "log_id",
+									"value": "1"
+								}
+							]
 						},
 						"description": "Get a production log by ID with all related data"
 					},
@@ -928,14 +1409,47 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"worker_id\": 1,\n    \"position_id\": 1,\n    \"sub_position_id\": 1,\n    \"shift_id\": 1,\n    \"supplier_id\": 1,\n    \"item_id\": 1,\n    \"qty_output\": 100.50,\n    \"qty_reject\": 5.25,\n    \"problem_duration_minutes\": 30,\n    \"problem_comment_ids\": [1, 2]\n}"
+							"raw": "{\n    \"worker_id\": 1,\n    \"position_id\": 1,\n    \"sub_position_id\": null,\n    \"shift_id\": 1,\n    \"supplier_id\": null,\n    \"item_id\": 1,\n    \"qty_output\": 100.5,\n    \"qty_reject\": 5.2,\n    \"problem_duration_minutes\": null,\n    \"problem_comment_ids\": []\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/production-logs",
-							"host": ["{{base_url}}"],
-							"path": ["production-logs"]
+							"raw": "{{base_url}}/production-logs/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"production-logs",
+								""
+							]
 						},
-						"description": "Create a new production log. problem_comment_ids is optional array for many-to-many relationship"
+						"description": "Create a new production log. problem_comment_ids is optional array of problem comment IDs."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Production Log with Problem",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"worker_id\": 1,\n    \"position_id\": 1,\n    \"sub_position_id\": 1,\n    \"shift_id\": 1,\n    \"supplier_id\": 1,\n    \"item_id\": 1,\n    \"qty_output\": 100.5,\n    \"qty_reject\": 10.2,\n    \"problem_duration_minutes\": 30,\n    \"problem_comment_ids\": [1, 2]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/production-logs/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"production-logs",
+								""
+							]
+						},
+						"description": "Create a production log with problem comments"
 					},
 					"response": []
 				},
@@ -951,19 +1465,30 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"qty_output\": 150.75,\n    \"qty_reject\": 3.50,\n    \"problem_comment_ids\": [1]\n}"
+							"raw": "{\n    \"qty_output\": 150.0,\n    \"qty_reject\": 8.5\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/production-logs/1",
-							"host": ["{{base_url}}"],
-							"path": ["production-logs", "1"]
+							"raw": "{{base_url}}/production-logs/:log_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"production-logs",
+								":log_id"
+							],
+							"variable": [
+								{
+									"key": "log_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Update a production log"
+						"description": "Update a production log. Only provided fields will be updated."
 					},
 					"response": []
 				},
 				{
-					"name": "Approve Production Log (Coordinator)",
+					"name": "Approve by Coordinator",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -974,19 +1499,30 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"approved_coordinator\": true,\n    \"approved_coordinator_by\": 1\n}"
+							"raw": "{\n    \"approved_coordinator\": true,\n    \"approved_coordinator_by\": 31\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/production-logs/1",
-							"host": ["{{base_url}}"],
-							"path": ["production-logs", "1"]
+							"raw": "{{base_url}}/production-logs/:log_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"production-logs",
+								":log_id"
+							],
+							"variable": [
+								{
+									"key": "log_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Approve production log by coordinator"
+						"description": "Approve production log by coordinator. approved_coordinator_by should be the worker ID of the coordinator."
 					},
 					"response": []
 				},
 				{
-					"name": "Approve Production Log (SPV)",
+					"name": "Approve by Supervisor",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -997,14 +1533,25 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"approved_spv\": true,\n    \"approved_spv_by\": 1\n}"
+							"raw": "{\n    \"approved_spv\": true,\n    \"approved_spv_by\": 32\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/production-logs/1",
-							"host": ["{{base_url}}"],
-							"path": ["production-logs", "1"]
+							"raw": "{{base_url}}/production-logs/:log_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"production-logs",
+								":log_id"
+							],
+							"variable": [
+								{
+									"key": "log_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Approve production log by SPV (requires coordinator approval first)"
+						"description": "Approve production log by supervisor. approved_spv_by should be the worker ID of the supervisor."
 					},
 					"response": []
 				},
@@ -1014,11 +1561,22 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/production-logs/1",
-							"host": ["{{base_url}}"],
-							"path": ["production-logs", "1"]
+							"raw": "{{base_url}}/production-logs/:log_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"production-logs",
+								":log_id"
+							],
+							"variable": [
+								{
+									"key": "log_id",
+									"value": "1"
+								}
+							]
 						},
-						"description": "Delete a production log"
+						"description": "Delete a production log by ID"
 					},
 					"response": []
 				}
@@ -1028,9 +1586,8 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:8000",
+			"value": "http://127.0.0.1:8000",
 			"type": "string"
 		}
 	]
 }
-

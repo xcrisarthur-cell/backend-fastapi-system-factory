@@ -1,216 +1,194 @@
-# MKP Operational API - Postman Collection
+# Postman Collection - MKP Operational API
 
-## 📋 Deskripsi
+Koleksi lengkap untuk testing semua endpoint API MKP Operational System Factory.
 
-Collection Postman lengkap untuk testing semua endpoint API MKP Operational System. Collection ini mencakup semua CRUD operations untuk semua tabel dalam database.
+## 📦 File yang Tersedia
+
+1. **MKP_Operational_API_Collection.postman_collection.json** - Collection lengkap dengan semua endpoint
+2. **MKP_Operational_API_Local.postman_environment.json** - Environment untuk local development
+3. **MKP_Operational_API_Production.postman_environment.json** - Environment untuk production
 
 ## 🚀 Cara Menggunakan
 
-### 1. Import Collection ke Postman
+### 1. Import Collection dan Environment ke Postman
 
 1. Buka Postman
 2. Klik **Import** di pojok kiri atas
-3. Pilih file `MKP_Operational_API_Collection.postman_collection.json`
-4. Klik **Import**
+3. Pilih file-file berikut:
+   - `MKP_Operational_API_Collection.postman_collection.json`
+   - `MKP_Operational_API_Local.postman_environment.json`
+   - `MKP_Operational_API_Production.postman_environment.json`
 
-### 2. Import Environment (Opsional)
+### 2. Pilih Environment
 
-1. Klik **Environments** di sidebar kiri
-2. Klik **Import**
-3. Pilih file `MKP_Operational_API_Environment.postman_environment.json`
-4. Klik **Import**
-5. Pilih environment **MKP Operational API - Local** di dropdown environment
+Di pojok kanan atas Postman, pilih environment yang ingin digunakan:
+- **MKP Operational API - Local** untuk testing di localhost
+- **MKP Operational API - Production** untuk testing di production
 
-### 3. Konfigurasi Base URL
+### 3. Mulai Testing
 
-Jika tidak menggunakan environment, Anda bisa mengubah base URL secara manual:
-- Collection variable: `{{base_url}}` (default: `http://localhost:8000`)
-- Atau ubah langsung di setiap request
+Collection sudah terorganisir berdasarkan resource:
+- Health Check
+- Workers (Login, CRUD)
+- Divisions (CRUD)
+- Departments (CRUD + Get by Division)
+- Positions (CRUD)
+- Sub Positions (CRUD + Get by Position)
+- Shifts (CRUD)
+- Suppliers (CRUD)
+- Items (CRUD + Get by Number)
+- Problem Comments (CRUD)
+- Production Logs (CRUD + Approval)
 
-## 📁 Struktur Collection
+## 📋 Endpoint yang Tersedia
 
-Collection diorganisir dalam folder sesuai dengan resource:
+### Health Check
+- `GET /health` - Check API status
 
-### 1. **Divisions** (5 endpoints)
-- GET `/divisions` - Get all divisions
-- GET `/divisions/{id}` - Get division by ID
-- POST `/divisions` - Create division
-- PUT `/divisions/{id}` - Update division
-- DELETE `/divisions/{id}` - Delete division
+### Workers
+- `POST /workers/login` - Login worker
+- `GET /workers` - Get all workers
+- `GET /workers/:worker_id` - Get worker by ID
+- `POST /workers/` - Create worker
+- `PUT /workers/:worker_id` - Update worker
+- `DELETE /workers/:worker_id` - Delete worker
 
-### 2. **Departments** (6 endpoints)
-- GET `/departments` - Get all departments (with division info)
-- GET `/departments/{id}` - Get department by ID
-- GET `/departments/by-division/{division_id}` - Get departments by division
-- POST `/departments` - Create department
-- PUT `/departments/{id}` - Update department
-- DELETE `/departments/{id}` - Delete department
+### Divisions
+- `GET /divisions` - Get all divisions
+- `GET /divisions/:division_id` - Get division by ID
+- `POST /divisions/` - Create division
+- `PUT /divisions/:division_id` - Update division
+- `DELETE /divisions/:division_id` - Delete division
 
-### 3. **Positions** (5 endpoints)
-- GET `/positions` - Get all positions
-- GET `/positions/{id}` - Get position by ID
-- POST `/positions` - Create position (unit: "pcs" or "lmbr")
-- PUT `/positions/{id}` - Update position
-- DELETE `/positions/{id}` - Delete position
+### Departments
+- `GET /departments` - Get all departments
+- `GET /departments/:department_id` - Get department by ID
+- `GET /departments/by-division/:division_id` - Get departments by division
+- `POST /departments/` - Create department
+- `PUT /departments/:department_id` - Update department
+- `DELETE /departments/:department_id` - Delete department
 
-### 4. **Sub Positions** (6 endpoints)
-- GET `/sub-positions` - Get all sub positions (with position info)
-- GET `/sub-positions/{id}` - Get sub position by ID
-- GET `/sub-positions/by-position/{position_id}` - Get sub positions by position
-- POST `/sub-positions` - Create sub position
-- PUT `/sub-positions/{id}` - Update sub position
-- DELETE `/sub-positions/{id}` - Delete sub position
+### Positions
+- `GET /positions` - Get all positions
+- `GET /positions/:position_id` - Get position by ID
+- `POST /positions/` - Create position
+- `PUT /positions/:position_id` - Update position
+- `DELETE /positions/:position_id` - Delete position
 
-### 5. **Workers** (5 endpoints)
-- GET `/workers` - Get all workers (with position & department info)
-- GET `/workers/{id}` - Get worker by ID
-- POST `/workers` - Create worker
-- PUT `/workers/{id}` - Update worker
-- DELETE `/workers/{id}` - Delete worker
+### Sub Positions
+- `GET /sub-positions` - Get all sub positions
+- `GET /sub-positions/:sub_position_id` - Get sub position by ID
+- `GET /sub-positions/by-position/:position_id` - Get sub positions by position
+- `POST /sub-positions/` - Create sub position
+- `PUT /sub-positions/:sub_position_id` - Update sub position
+- `DELETE /sub-positions/:sub_position_id` - Delete sub position
 
-### 6. **Shifts** (5 endpoints)
-- GET `/shifts` - Get all shifts
-- GET `/shifts/{id}` - Get shift by ID
-- POST `/shifts` - Create shift
-- PUT `/shifts/{id}` - Update shift
-- DELETE `/shifts/{id}` - Delete shift
+### Shifts
+- `GET /shifts` - Get all shifts
+- `GET /shifts/:shift_id` - Get shift by ID
+- `POST /shifts/` - Create shift
+- `PUT /shifts/:shift_id` - Update shift
+- `DELETE /shifts/:shift_id` - Delete shift
 
-### 7. **Suppliers** (5 endpoints)
-- GET `/suppliers` - Get all suppliers
-- GET `/suppliers/{id}` - Get supplier by ID
-- POST `/suppliers` - Create supplier
-- PUT `/suppliers/{id}` - Update supplier
-- DELETE `/suppliers/{id}` - Delete supplier
+### Suppliers
+- `GET /suppliers` - Get all suppliers
+- `GET /suppliers/:supplier_id` - Get supplier by ID
+- `POST /suppliers/` - Create supplier
+- `PUT /suppliers/:supplier_id` - Update supplier
+- `DELETE /suppliers/:supplier_id` - Delete supplier
 
-### 8. **Items** (6 endpoints)
-- GET `/items` - Get all items
-- GET `/items/{id}` - Get item by ID
-- GET `/items/number/{item_number}` - Get item by item number
-- POST `/items` - Create item
-- PUT `/items/{id}` - Update item
-- DELETE `/items/{id}` - Delete item
+### Items
+- `GET /items` - Get all items
+- `GET /items/:item_identifier` - Get item by ID or item number
+- `GET /items/number/:item_number` - Get item by item number
+- `POST /items/` - Create item
+- `PUT /items/:item_id` - Update item
+- `DELETE /items/:item_id` - Delete item
 
-### 9. **Problem Comments** (5 endpoints)
-- GET `/problem-comments` - Get all problem comments
-- GET `/problem-comments/{id}` - Get problem comment by ID
-- POST `/problem-comments` - Create problem comment
-- PUT `/problem-comments/{id}` - Update problem comment
-- DELETE `/problem-comments/{id}` - Delete problem comment
+### Problem Comments
+- `GET /problem-comments` - Get all problem comments
+- `GET /problem-comments/:comment_id` - Get problem comment by ID
+- `POST /problem-comments/` - Create problem comment
+- `PUT /problem-comments/:comment_id` - Update problem comment
+- `DELETE /problem-comments/:comment_id` - Delete problem comment
 
-### 10. **Production Logs** (7 endpoints)
-- GET `/production-logs` - Get all production logs (with all related data)
-- GET `/production-logs/{id}` - Get production log by ID
-- POST `/production-logs` - Create production log
-- PUT `/production-logs/{id}` - Update production log
-- PUT `/production-logs/{id}` - Approve by coordinator
-- PUT `/production-logs/{id}` - Approve by SPV
-- DELETE `/production-logs/{id}` - Delete production log
+### Production Logs
+- `GET /production-logs` - Get all production logs
+- `GET /production-logs/:log_id` - Get production log by ID
+- `POST /production-logs/` - Create production log
+- `POST /production-logs/` (with problem) - Create production log with problem comments
+- `PUT /production-logs/:log_id` - Update production log
+- `PUT /production-logs/:log_id` (approve coordinator) - Approve by coordinator
+- `PUT /production-logs/:log_id` (approve supervisor) - Approve by supervisor
+- `DELETE /production-logs/:log_id` - Delete production log
 
-## 🔑 Fitur Khusus
+## 🔐 Test Credentials (dari seeder)
 
-### Nested Relationships
-Semua GET endpoints mengembalikan data dengan nested relationships:
-- **Workers** → includes `position` dan `department` (dengan `division`)
-- **Departments** → includes `division`
-- **Sub Positions** → includes `position`
-- **Production Logs** → includes semua relasi (worker, position, department, shift, supplier, item, problem_comments)
+Setelah menjalankan seeder, Anda dapat menggunakan credentials berikut untuk testing:
 
-### Production Logs - Many-to-Many
-Production logs menggunakan `problem_comment_ids` array untuk many-to-many relationship dengan problem comments.
+### Koordinator
+- Worker ID: 31
+- Password: `zaenal1`
 
-### Approval System
-Production logs memiliki sistem approval:
-- `approved_coordinator` - Approval oleh coordinator
-- `approved_spv` - Approval oleh SPV (harus coordinator approve dulu)
+### Supervisor
+- Worker ID: 32
+- Password: `prido1`
 
-## 📝 Contoh Request Body
+### Admin Produksi
+- Worker ID: 33
+- Password: `kiky1`
+- Worker ID: 34
+- Password: `rino1`
 
-### Create Worker
-```json
-{
-    "name": "John Doe",
-    "position_id": 1,
-    "department_id": 1
-}
-```
+### Superadmin
+- Worker ID: 35
+- Password: `mas5indo`
 
-### Create Production Log
-```json
-{
-    "worker_id": 1,
-    "position_id": 1,
-    "sub_position_id": 1,
-    "shift_id": 1,
-    "supplier_id": 1,
-    "item_id": 1,
-    "qty_output": 100.50,
-    "qty_reject": 5.25,
-    "problem_duration_minutes": 30,
-    "problem_comment_ids": [1, 2]
-}
-```
+## 💡 Tips
 
-### Approve Production Log
-```json
-{
-    "approved_coordinator": true,
-    "approved_coordinator_by": 1
-}
-```
+1. **Update Variable Values**: Sebelum testing, pastikan untuk mengupdate nilai variable di request (seperti `:worker_id`, `:division_id`, dll) dengan ID yang valid dari database Anda.
 
-## ⚠️ Catatan Penting
+2. **Test Flow**: Disarankan untuk test dalam urutan:
+   - Health Check
+   - Get All untuk setiap resource (untuk melihat data yang ada)
+   - Create untuk membuat data baru
+   - Update untuk mengupdate data
+   - Delete untuk menghapus data (hati-hati!)
 
-1. **Foreign Key Validation**: Pastikan ID yang digunakan sudah ada di database sebelum membuat relasi
-2. **Unique Constraints**: 
-   - Division: `code` dan `name` harus unique
-   - Department: `code` harus unique per division
-   - Position: `code` harus unique, `unit` harus "pcs" atau "lmbr"
-   - Sub Position: `code` harus unique per position
-   - Worker: tidak ada unique constraint
-   - Shift: `name` harus unique
-   - Supplier: `name` harus unique
-   - Item: `item_number` harus unique
-   - Problem Comment: `description` harus unique
+3. **Production Logs**: Untuk membuat production log, pastikan semua foreign key (worker_id, position_id, shift_id, item_id) sudah ada di database.
 
-3. **Order of Creation**: Disarankan membuat data dalam urutan:
-   1. Divisions
-   2. Departments
-   3. Positions
-   4. Sub Positions
-   5. Workers
-   6. Shifts
-   7. Suppliers
-   8. Items
-   9. Problem Comments
-   10. Production Logs
+4. **Approval Flow**: 
+   - Production log harus di-approve oleh coordinator terlebih dahulu
+   - Setelah itu baru bisa di-approve oleh supervisor
+
+## 🔄 Environment Variables
+
+Collection menggunakan variable `{{base_url}}` yang akan otomatis diisi berdasarkan environment yang dipilih:
+
+- **Local**: `http://127.0.0.1:8000`
+- **Production**: `https://backend-fastapi-system-factory.fly.dev`
+
+## 📝 Notes
+
+- Semua request menggunakan `Content-Type: application/json` untuk POST dan PUT
+- Response akan dalam format JSON
+- Error response akan mengikuti format FastAPI standard
 
 ## 🐛 Troubleshooting
 
-### Error 404
-- Pastikan ID yang digunakan sudah ada di database
-- Pastikan endpoint URL benar
+### Error: "Cannot connect to server"
+- Pastikan backend server sudah running
+- Check apakah base_url di environment sudah benar
+- Untuk local, pastikan server berjalan di port 8000
 
-### Error 400
-- Cek unique constraints
-- Cek format data (unit harus "pcs" atau "lmbr")
-- Cek foreign key references
+### Error: "404 Not Found"
+- Pastikan endpoint path sudah benar
+- Check apakah resource dengan ID tersebut ada di database
 
-### Error 500
-- Pastikan database connection berjalan
-- Cek server logs untuk detail error
-
-## 📚 Dokumentasi API
-
-Untuk dokumentasi API lengkap, buka:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-
-## 🔄 Update Collection
-
-Jika ada perubahan endpoint, update collection dengan:
-1. Export collection dari Postman
-2. Replace file `MKP_Operational_API_Collection.postman_collection.json`
-3. Commit perubahan ke repository
+### Error: "400 Bad Request"
+- Check request body, pastikan format JSON sudah benar
+- Pastikan semua required fields sudah diisi
+- Check apakah ada constraint violation (duplicate code, etc.)
 
 ---
 
