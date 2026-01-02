@@ -2,11 +2,15 @@
 
 Berikut adalah langkah-langkah untuk men-deploy aplikasi FastAPI dan Database PostgreSQL ke server Ubuntu Anda.
 
+**Target Konfigurasi:**
+- API Backend berjalan di Port **1101** (http://103.164.99.2:1101)
+- Website Frontend berjalan di Port **80** (http://103.164.99.2) - *Disiapkan terpisah*
+
 ## Prasyarat
 File-file berikut sudah disiapkan di folder proyek:
 - `Dockerfile` (Konfigurasi image aplikasi)
 - `docker-compose.yml` (Orkestrasi aplikasi dan database)
-- `nginx-mkp.conf` (Konfigurasi Reverse Proxy)
+- `nginx-mkp.conf` (Konfigurasi Reverse Proxy untuk API di port 1101)
 
 ## Langkah 1: Persiapan Server (Install Docker)
 Masuk ke server via SSH dan jalankan perintah berikut untuk menginstall Docker:
@@ -43,17 +47,17 @@ Contoh jika menggunakan SCP (jalankan dari komputer lokal):
 scp -P 2222 -r C:\Users\xcris\Documents\GitHub\backend-fastapi-system-factory server_mkp_bekasi@103.164.99.2:~/backend-fastapi
 ```
 
-## Langkah 3: Jalankan Aplikasi
+## Langkah 3: Jalankan Aplikasi Backend
 Masuk ke folder project di server:
 ```bash
-cd ~/backend-fastapi-system-factory
+cd ~/backend-fastapi
 ```
 
 Jalankan Docker Compose:
 ```bash
 sudo docker compose up -d --build
 ```
-Aplikasi sekarang berjalan di `localhost:8000` di dalam server.
+Aplikasi backend sekarang berjalan di `localhost:8000` (internal server) dan belum bisa diakses publik.
 
 ## Langkah 4: Setup Database (Seeding)
 Jalankan perintah ini untuk mengisi database dengan data awal (pastikan container sudah running):
@@ -62,37 +66,38 @@ Jalankan perintah ini untuk mengisi database dengan data awal (pastikan containe
 sudo docker compose exec app python seed.py --yes
 ```
 
-## Langkah 5: Setup Nginx (Agar bisa diakses via IP Public)
-Karena port 80 sudah digunakan di server Anda, kita perlu mengkonfigurasi Nginx untuk meneruskan traffic ke aplikasi kita.
+## Langkah 5: Setup Nginx (Agar API bisa diakses via Port 1101)
+Kita akan mengkonfigurasi Nginx untuk mendengarkan port 1101 dan meneruskannya ke backend.
 
-1. Install Nginx (jika belum ada, tapi sepertinya sudah ada karena port 80 listening):
+1. Install Nginx (jika belum ada):
    ```bash
    sudo apt install nginx
    ```
 
-2. Cek apa yang menggunakan port 80:
+2. Copy konfigurasi Nginx yang sudah disiapkan:
    ```bash
-   sudo lsof -i :80
-   # atau
-   sudo systemctl status nginx
+   sudo cp nginx-mkp.conf /etc/nginx/sites-available/mkp_backend_api
    ```
 
-3. Copy konfigurasi Nginx yang sudah disiapkan:
+3. Aktifkan konfigurasi:
    ```bash
-   sudo cp nginx-mkp.conf /etc/nginx/sites-available/mkp_backend
+   sudo ln -s /etc/nginx/sites-available/mkp_backend_api /etc/nginx/sites-enabled/
    ```
+   *Catatan: Jangan hapus default config jika itu digunakan untuk frontend di port 80.*
 
-4. Aktifkan konfigurasi:
-   ```bash
-   sudo ln -s /etc/nginx/sites-available/mkp_backend /etc/nginx/sites-enabled/
-   sudo rm /etc/nginx/sites-enabled/default  # Hapus default jika perlu
-   ```
-
-5. Test dan Restart Nginx:
+4. Test dan Restart Nginx:
    ```bash
    sudo nginx -t
    sudo systemctl restart nginx
    ```
 
-Sekarang akses `http://103.164.99.2/` dari browser Anda.
-Docs API ada di `http://103.164.99.2/docs`.
+5. **PENTING: Buka Firewall (Jika ada)**
+   Pastikan port 1101 dibuka di firewall server (UFW) atau Security Group penyedia cloud Anda.
+   ```bash
+   sudo ufw allow 1101/tcp
+   ```
+
+Sekarang akses API Backend di `http://103.164.99.2:1101/`.
+Docs API ada di `http://103.164.99.2:1101/docs`.
+
+Website frontend nantinya bisa dideploy terpisah di port 80.
