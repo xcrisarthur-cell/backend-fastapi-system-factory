@@ -196,3 +196,6 @@ Pastikan semua dependencies sudah terinstall. Cek `requirements.txt` dan pastika
 
 
 
+
+
+

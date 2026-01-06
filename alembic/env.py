@@ -81,6 +81,10 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
+        try:
+            connection.exec_driver_sql("CREATE SCHEMA IF NOT EXISTS public")
+        except Exception:
+            pass
         context.configure(
             connection=connection, target_metadata=target_metadata,
             version_table_schema="public"
@@ -94,4 +98,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-

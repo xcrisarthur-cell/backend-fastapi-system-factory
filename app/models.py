@@ -187,6 +187,7 @@ class ProductionLog(Base):
     qty_output = Column(Numeric(10, 2), nullable=False)
     qty_reject = Column(Numeric(10, 2), nullable=False)
     problem_duration_minutes = Column(Integer, nullable=True)
+    status_completion = Column(Integer, nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     approved_coordinator = Column(Boolean, nullable=True)
     approved_spv = Column(Boolean, nullable=True)

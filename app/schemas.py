@@ -201,6 +201,7 @@ class ProductionLogCreate(BaseModel):
     qty_output: float
     qty_reject: float
     problem_duration_minutes: Optional[int] = None
+    status_completion: Optional[int] = None
     problem_comment_ids: Optional[List[int]] = None  # For many-to-many relationship
 
 
@@ -214,6 +215,7 @@ class ProductionLogUpdate(BaseModel):
     qty_output: Optional[float] = None
     qty_reject: Optional[float] = None
     problem_duration_minutes: Optional[int] = None
+    status_completion: Optional[int] = None
     problem_comment_ids: Optional[List[int]] = None
     approved_coordinator: Optional[bool] = None
     approved_spv: Optional[bool] = None
@@ -232,6 +234,7 @@ class ProductionLogResponse(BaseModel):
     qty_output: float
     qty_reject: float
     problem_duration_minutes: Optional[int] = None
+    status_completion: Optional[int] = None
     created_at: datetime
     approved_coordinator: Optional[bool] = None
     approved_spv: Optional[bool] = None

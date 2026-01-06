@@ -718,7 +718,15 @@ def main():
         # Drop and recreate tables
         print("\nDropping all tables (CASCADE)...")
         with engine.connect() as connection:
-            connection.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public;"))
+            try:
+                connection.exec_driver_sql("DROP SCHEMA IF EXISTS public CASCADE")
+            except Exception:
+                pass
+            connection.exec_driver_sql("CREATE SCHEMA IF NOT EXISTS public")
+            try:
+                connection.exec_driver_sql("SET search_path TO public")
+            except Exception:
+                pass
             connection.commit()
             
         print("Running Alembic migrations...")
@@ -731,6 +739,16 @@ def main():
         
         alembic_cfg = Config(alembic_ini_path)
         command.upgrade(alembic_cfg, "head")
+        
+        try:
+            from sqlalchemy import inspect
+            inspector = inspect(engine)
+            tables = inspector.get_table_names(schema="public")
+            if "divisions" not in tables:
+                print("Warning: tables not found after Alembic upgrade, creating via metadata...")
+                Base.metadata.create_all(bind=engine)
+        except Exception:
+            Base.metadata.create_all(bind=engine)
         
         print("Database schema reset via Alembic!")
         

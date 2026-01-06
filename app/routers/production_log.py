@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session, joinedload, selectinload
 from datetime import datetime
+from typing import List
 from app.database import get_db
 from app import models, schemas
 
@@ -27,6 +28,7 @@ def _format_production_log_response(log: models.ProductionLog) -> schemas.Produc
         "qty_output": float(log.qty_output),
         "qty_reject": float(log.qty_reject),
         "problem_duration_minutes": log.problem_duration_minutes,
+        "status_completion": log.status_completion,
         "created_at": log.created_at,
         "approved_coordinator": log.approved_coordinator,
         "approved_spv": log.approved_spv,
@@ -217,8 +219,6 @@ def update_log(log_id: int, data: schemas.ProductionLogUpdate, db: Session = Dep
     if data.approved_coordinator is not None:
         if data.approved_coordinator and log.approved_coordinator_at is None:
             update_data["approved_coordinator_at"] = datetime.now()
-        elif not data.approved_coordinator:
-            update_data["approved_coordinator_at"] = None
     
     if data.approved_spv is not None:
         if data.approved_spv and log.approved_spv_at is None:
@@ -278,3 +278,23 @@ def delete_log(log_id: int, db: Session = Depends(get_db)):
     db.delete(log)
     db.commit()
     return {"message": "Production log berhasil dihapus"}
+
+
+@router.post("/bulk-increment-status", status_code=200)
+def bulk_increment_status(log_ids: List[int] = Body(...), db: Session = Depends(get_db)):
+    """Increment status_completion by 1 for the given list of production log IDs"""
+    if not log_ids:
+        return {"message": "No IDs provided"}
+        
+    logs = db.query(models.ProductionLog).filter(models.ProductionLog.id.in_(log_ids)).all()
+    
+    if not logs:
+        raise HTTPException(status_code=404, detail="No production logs found for the provided IDs")
+
+    for log in logs:
+        if log.status_completion is None:
+            log.status_completion = 0
+        log.status_completion += 1
+    
+    db.commit()
+    return {"message": f"Successfully incremented status for {len(logs)} logs"}
