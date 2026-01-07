@@ -1,0 +1,14 @@
+[Unit]
+Description=FastAPI System Factory Service
+After=network.target
+
+[Service]
+User=server_mkp_bekasi
+Group=server_mkp_bekasi
+WorkingDirectory=/home/server_mkp_bekasi/backend-fastapi-system-factory
+Environment="PATH=/home/server_mkp_bekasi/backend-fastapi-system-factory/venv/bin"
+ExecStart=/home/server_mkp_bekasi/backend-fastapi-system-factory/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
