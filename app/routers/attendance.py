@@ -27,6 +27,7 @@ def get_attendance(attendance_id: int, db: Session = Depends(get_db)):
     return attendance
 
 
+@router.post("", response_model=schemas.AttendanceResponse, status_code=201)
 @router.post("/", response_model=schemas.AttendanceResponse, status_code=201)
 def create_attendance(data: schemas.AttendanceCreate, db: Session = Depends(get_db)):
     """Create a new attendance record"""

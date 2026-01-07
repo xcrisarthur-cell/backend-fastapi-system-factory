@@ -281,6 +281,7 @@ def delete_log(log_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/bulk-increment-status", status_code=200)
+@router.post("/bulk-increment-status/", status_code=200)
 def bulk_increment_status(log_ids: List[int] = Body(...), db: Session = Depends(get_db)):
     """Increment status_completion by 1 for the given list of production log IDs"""
     if not log_ids:

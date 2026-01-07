@@ -33,6 +33,7 @@ def get_production_target(target_id: int, db: Session = Depends(get_db)):
     return target
 
 
+@router.post("", response_model=schemas.ProductionTargetResponse, status_code=201)
 @router.post("/", response_model=schemas.ProductionTargetResponse, status_code=201)
 def create_production_target(data: schemas.ProductionTargetCreate, db: Session = Depends(get_db)):
     """Create a new production target"""
