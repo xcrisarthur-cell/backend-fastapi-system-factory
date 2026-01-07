@@ -24,6 +24,7 @@ def get_comment(comment_id: int, db: Session = Depends(get_db)):
     return comment
 
 
+@router.post("", response_model=schemas.ProblemCommentResponse, status_code=201)
 @router.post("/", response_model=schemas.ProblemCommentResponse, status_code=201)
 def create_comment(data: schemas.ProblemCommentCreate, db: Session = Depends(get_db)):
     """Create a new problem comment"""
