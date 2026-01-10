@@ -14,6 +14,7 @@ def get_divisions(db: Session = Depends(get_db)):
 
 
 @router.get("/{division_id}", response_model=schemas.DivisionResponse)
+@router.get("/{division_id}/", response_model=schemas.DivisionResponse)
 def get_division(division_id: int, db: Session = Depends(get_db)):
     """Get a division by ID"""
     division = db.query(models.Division)\
@@ -24,6 +25,7 @@ def get_division(division_id: int, db: Session = Depends(get_db)):
     return division
 
 
+@router.post("", response_model=schemas.DivisionResponse, status_code=201)
 @router.post("/", response_model=schemas.DivisionResponse, status_code=201)
 def create_division(data: schemas.DivisionCreate, db: Session = Depends(get_db)):
     """Create a new division"""
@@ -49,6 +51,7 @@ def create_division(data: schemas.DivisionCreate, db: Session = Depends(get_db))
 
 
 @router.put("/{division_id}", response_model=schemas.DivisionResponse)
+@router.put("/{division_id}/", response_model=schemas.DivisionResponse)
 def update_division(division_id: int, data: schemas.DivisionUpdate, db: Session = Depends(get_db)):
     """Update a division"""
     division = db.query(models.Division)\
@@ -83,6 +86,7 @@ def update_division(division_id: int, data: schemas.DivisionUpdate, db: Session 
 
 
 @router.delete("/{division_id}")
+@router.delete("/{division_id}/")
 def delete_division(division_id: int, db: Session = Depends(get_db)):
     """Delete a division"""
     division = db.query(models.Division)\
@@ -94,4 +98,3 @@ def delete_division(division_id: int, db: Session = Depends(get_db)):
     db.delete(division)
     db.commit()
     return {"message": "Division berhasil dihapus"}
-

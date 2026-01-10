@@ -19,6 +19,7 @@ def get_production_targets(db: Session = Depends(get_db)):
 
 
 @router.get("/{target_id}", response_model=schemas.ProductionTargetResponse)
+@router.get("/{target_id}/", response_model=schemas.ProductionTargetResponse)
 def get_production_target(target_id: int, db: Session = Depends(get_db)):
     """Get a production target by ID"""
     target = db.query(models.ProductionTarget)\
@@ -70,6 +71,7 @@ def create_production_target(data: schemas.ProductionTargetCreate, db: Session =
 
 
 @router.put("/{target_id}", response_model=schemas.ProductionTargetResponse)
+@router.put("/{target_id}/", response_model=schemas.ProductionTargetResponse)
 def update_production_target(target_id: int, data: schemas.ProductionTargetUpdate, db: Session = Depends(get_db)):
     """Update a production target"""
     target = db.query(models.ProductionTarget).filter(models.ProductionTarget.id == target_id).first()
@@ -108,6 +110,7 @@ def update_production_target(target_id: int, data: schemas.ProductionTargetUpdat
 
 
 @router.delete("/{target_id}")
+@router.delete("/{target_id}/")
 def delete_production_target(target_id: int, db: Session = Depends(get_db)):
     """Delete a production target"""
     target = db.query(models.ProductionTarget).filter(models.ProductionTarget.id == target_id).first()

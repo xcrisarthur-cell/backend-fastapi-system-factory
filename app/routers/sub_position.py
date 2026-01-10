@@ -16,6 +16,7 @@ def get_sub_positions(db: Session = Depends(get_db)):
 
 
 @router.get("/{sub_position_id}", response_model=schemas.SubPositionResponse)
+@router.get("/{sub_position_id}/", response_model=schemas.SubPositionResponse)
 def get_sub_position(sub_position_id: int, db: Session = Depends(get_db)):
     """Get a sub position by ID with position information"""
     sub_position = db.query(models.SubPosition)\
@@ -28,6 +29,7 @@ def get_sub_position(sub_position_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/by-position/{position_id}", response_model=list[schemas.SubPositionResponse])
+@router.get("/by-position/{position_id}/", response_model=list[schemas.SubPositionResponse])
 def get_by_position(position_id: int, db: Session = Depends(get_db)):
     """Get all sub positions by position ID"""
     return db.query(models.SubPosition)\
@@ -36,6 +38,7 @@ def get_by_position(position_id: int, db: Session = Depends(get_db)):
         .all()
 
 
+@router.post("", response_model=schemas.SubPositionResponse, status_code=201)
 @router.post("/", response_model=schemas.SubPositionResponse, status_code=201)
 def create_sub_position(data: schemas.SubPositionCreate, db: Session = Depends(get_db)):
     """Create a new sub position"""
@@ -69,6 +72,7 @@ def create_sub_position(data: schemas.SubPositionCreate, db: Session = Depends(g
 
 
 @router.put("/{sub_position_id}", response_model=schemas.SubPositionResponse)
+@router.put("/{sub_position_id}/", response_model=schemas.SubPositionResponse)
 def update_sub_position(sub_position_id: int, data: schemas.SubPositionUpdate, db: Session = Depends(get_db)):
     """Update a sub position"""
     sub_position = db.query(models.SubPosition)\
@@ -113,6 +117,7 @@ def update_sub_position(sub_position_id: int, data: schemas.SubPositionUpdate, d
 
 
 @router.delete("/{sub_position_id}")
+@router.delete("/{sub_position_id}/")
 def delete_sub_position(sub_position_id: int, db: Session = Depends(get_db)):
     """Delete a sub position"""
     sub_position = db.query(models.SubPosition)\

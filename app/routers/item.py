@@ -14,6 +14,7 @@ def get_items(db: Session = Depends(get_db)):
 
 
 @router.get("/{item_identifier}", response_model=schemas.ItemResponse)
+@router.get("/{item_identifier}/", response_model=schemas.ItemResponse)
 def get_item_by_id_or_number(item_identifier: str, db: Session = Depends(get_db)):
     """Get an item by ID (integer) or item_number (string)"""
     # Try to parse as integer first (for backward compatibility with ID lookup)
@@ -37,6 +38,7 @@ def get_item_by_id_or_number(item_identifier: str, db: Session = Depends(get_db)
 
 
 @router.get("/number/{item_number}", response_model=schemas.ItemResponse)
+@router.get("/number/{item_number}/", response_model=schemas.ItemResponse)
 def get_item(item_number: str, db: Session = Depends(get_db)):
     """Get an item by item number"""
     item = db.query(models.Item)\
@@ -47,6 +49,7 @@ def get_item(item_number: str, db: Session = Depends(get_db)):
     return item
 
 
+@router.post("", response_model=schemas.ItemResponse, status_code=201)
 @router.post("/", response_model=schemas.ItemResponse, status_code=201)
 def create_item(data: schemas.ItemCreate, db: Session = Depends(get_db)):
     """Create a new item"""
@@ -65,6 +68,7 @@ def create_item(data: schemas.ItemCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{item_id}", response_model=schemas.ItemResponse)
+@router.put("/{item_id}/", response_model=schemas.ItemResponse)
 def update_item(item_id: int, data: schemas.ItemUpdate, db: Session = Depends(get_db)):
     """Update an item by ID"""
     item = db.query(models.Item)\
@@ -91,6 +95,7 @@ def update_item(item_id: int, data: schemas.ItemUpdate, db: Session = Depends(ge
 
 
 @router.delete("/{item_id}")
+@router.delete("/{item_id}/")
 def delete_item(item_id: int, db: Session = Depends(get_db)):
     """Delete an item by ID"""
     item = db.query(models.Item)\

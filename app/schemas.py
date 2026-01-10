@@ -202,6 +202,7 @@ class ProductionLogCreate(BaseModel):
     qty_reject: float
     problem_duration_minutes: Optional[int] = None
     status_completion: Optional[int] = None
+    created_at: Optional[datetime] = None
     problem_comment_ids: Optional[List[int]] = None  # For many-to-many relationship
 
 
@@ -216,6 +217,7 @@ class ProductionLogUpdate(BaseModel):
     qty_reject: Optional[float] = None
     problem_duration_minutes: Optional[int] = None
     status_completion: Optional[int] = None
+    created_at: Optional[datetime] = None
     problem_comment_ids: Optional[List[int]] = None
     approved_coordinator: Optional[bool] = None
     approved_spv: Optional[bool] = None
@@ -277,6 +279,53 @@ class ProductionTargetResponse(ProductionTargetCreate):
     # Nested relationships
     position: Optional[PositionResponse] = None
     sub_position: Optional[SubPositionResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
+# ========= PRODUCTION PLAN =========
+class ProductionPlanCreate(BaseModel):
+    target: float
+    item_id: int
+    worker_id: int
+    position_id: Optional[int] = None
+    shift_id: int
+    sub_position_id: Optional[int] = None
+    note: Optional[str] = None
+    created_by: int
+    created_at: Optional[datetime] = None
+
+
+class ProductionPlanUpdate(BaseModel):
+    target: Optional[float] = None
+    item_id: Optional[int] = None
+    worker_id: Optional[int] = None
+    position_id: Optional[int] = None
+    shift_id: Optional[int] = None
+    sub_position_id: Optional[int] = None
+    note: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+
+class ProductionPlanResponse(BaseModel):
+    id: int
+    target: float
+    item_id: int
+    worker_id: int
+    position_id: Optional[int] = None
+    shift_id: int
+    sub_position_id: Optional[int] = None
+    note: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    created_by: int
+    item: Optional[ItemResponse] = None
+    worker: Optional[WorkerResponse] = None
+    position: Optional[PositionResponse] = None
+    shift: Optional[ShiftResponse] = None
+    sub_position: Optional[SubPositionResponse] = None
+    created_by_worker: Optional[WorkerResponse] = None
 
     class Config:
         from_attributes = True

@@ -14,6 +14,7 @@ def get_comments(db: Session = Depends(get_db)):
 
 
 @router.get("/{comment_id}", response_model=schemas.ProblemCommentResponse)
+@router.get("/{comment_id}/", response_model=schemas.ProblemCommentResponse)
 def get_comment(comment_id: int, db: Session = Depends(get_db)):
     """Get a problem comment by ID"""
     comment = db.query(models.ProblemComment)\
@@ -43,6 +44,7 @@ def create_comment(data: schemas.ProblemCommentCreate, db: Session = Depends(get
 
 
 @router.put("/{comment_id}", response_model=schemas.ProblemCommentResponse)
+@router.put("/{comment_id}/", response_model=schemas.ProblemCommentResponse)
 def update_comment(comment_id: int, data: schemas.ProblemCommentUpdate, db: Session = Depends(get_db)):
     """Update a problem comment"""
     comment = db.query(models.ProblemComment)\
@@ -69,6 +71,7 @@ def update_comment(comment_id: int, data: schemas.ProblemCommentUpdate, db: Sess
 
 
 @router.delete("/{comment_id}")
+@router.delete("/{comment_id}/")
 def delete_comment(comment_id: int, db: Session = Depends(get_db)):
     """Delete a problem comment"""
     comment = db.query(models.ProblemComment)\

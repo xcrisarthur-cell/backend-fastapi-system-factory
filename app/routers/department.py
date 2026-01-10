@@ -16,6 +16,7 @@ def get_departments(db: Session = Depends(get_db)):
 
 
 @router.get("/{department_id}", response_model=schemas.DepartmentResponse)
+@router.get("/{department_id}/", response_model=schemas.DepartmentResponse)
 def get_department(department_id: int, db: Session = Depends(get_db)):
     """Get a department by ID with division information"""
     department = db.query(models.Department)\
@@ -28,6 +29,7 @@ def get_department(department_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/by-division/{division_id}", response_model=list[schemas.DepartmentResponse])
+@router.get("/by-division/{division_id}/", response_model=list[schemas.DepartmentResponse])
 def get_departments_by_division(division_id: int, db: Session = Depends(get_db)):
     """Get all departments by division ID"""
     return db.query(models.Department)\
@@ -36,6 +38,7 @@ def get_departments_by_division(division_id: int, db: Session = Depends(get_db))
         .all()
 
 
+@router.post("", response_model=schemas.DepartmentResponse, status_code=201)
 @router.post("/", response_model=schemas.DepartmentResponse, status_code=201)
 def create_department(data: schemas.DepartmentCreate, db: Session = Depends(get_db)):
     """Create a new department"""
@@ -69,6 +72,7 @@ def create_department(data: schemas.DepartmentCreate, db: Session = Depends(get_
 
 
 @router.put("/{department_id}", response_model=schemas.DepartmentResponse)
+@router.put("/{department_id}/", response_model=schemas.DepartmentResponse)
 def update_department(department_id: int, data: schemas.DepartmentUpdate, db: Session = Depends(get_db)):
     """Update a department"""
     department = db.query(models.Department)\
@@ -113,6 +117,7 @@ def update_department(department_id: int, data: schemas.DepartmentUpdate, db: Se
 
 
 @router.delete("/{department_id}")
+@router.delete("/{department_id}/")
 def delete_department(department_id: int, db: Session = Depends(get_db)):
     """Delete a department"""
     department = db.query(models.Department)\
@@ -124,4 +129,3 @@ def delete_department(department_id: int, db: Session = Depends(get_db)):
     db.delete(department)
     db.commit()
     return {"message": "Department berhasil dihapus"}
-

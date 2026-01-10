@@ -14,6 +14,7 @@ def get_suppliers(db: Session = Depends(get_db)):
 
 
 @router.get("/{supplier_id}", response_model=schemas.SupplierResponse)
+@router.get("/{supplier_id}/", response_model=schemas.SupplierResponse)
 def get_supplier(supplier_id: int, db: Session = Depends(get_db)):
     """Get a supplier by ID"""
     supplier = db.query(models.Supplier)\
@@ -24,6 +25,7 @@ def get_supplier(supplier_id: int, db: Session = Depends(get_db)):
     return supplier
 
 
+@router.post("", response_model=schemas.SupplierResponse, status_code=201)
 @router.post("/", response_model=schemas.SupplierResponse, status_code=201)
 def create_supplier(data: schemas.SupplierCreate, db: Session = Depends(get_db)):
     """Create a new supplier"""
@@ -41,6 +43,7 @@ def create_supplier(data: schemas.SupplierCreate, db: Session = Depends(get_db))
 
 
 @router.put("/{supplier_id}", response_model=schemas.SupplierResponse)
+@router.put("/{supplier_id}/", response_model=schemas.SupplierResponse)
 def update_supplier(supplier_id: int, data: schemas.SupplierUpdate, db: Session = Depends(get_db)):
     """Update a supplier"""
     supplier = db.query(models.Supplier)\
@@ -67,6 +70,7 @@ def update_supplier(supplier_id: int, data: schemas.SupplierUpdate, db: Session 
 
 
 @router.delete("/{supplier_id}")
+@router.delete("/{supplier_id}/")
 def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
     """Delete a supplier"""
     supplier = db.query(models.Supplier)\

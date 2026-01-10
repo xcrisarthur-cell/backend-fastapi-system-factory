@@ -71,6 +71,7 @@ def get_logs(db: Session = Depends(get_db)):
 
 
 @router.get("/{log_id}", response_model=schemas.ProductionLogResponse)
+@router.get("/{log_id}/", response_model=schemas.ProductionLogResponse)
 def get_log(log_id: int, db: Session = Depends(get_db)):
     """Get a production log by ID with all related data"""
     log = db.query(models.ProductionLog)\
@@ -164,6 +165,7 @@ def create_log(data: schemas.ProductionLogCreate, db: Session = Depends(get_db))
 
 
 @router.put("/{log_id}", response_model=schemas.ProductionLogResponse)
+@router.put("/{log_id}/", response_model=schemas.ProductionLogResponse)
 def update_log(log_id: int, data: schemas.ProductionLogUpdate, db: Session = Depends(get_db)):
     """Update a production log"""
     log = db.query(models.ProductionLog)\
@@ -267,6 +269,7 @@ def update_log(log_id: int, data: schemas.ProductionLogUpdate, db: Session = Dep
 
 
 @router.delete("/{log_id}")
+@router.delete("/{log_id}/")
 def delete_log(log_id: int, db: Session = Depends(get_db)):
     """Delete a production log"""
     log = db.query(models.ProductionLog)\

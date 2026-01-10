@@ -73,6 +73,29 @@ class ProductionTarget(Base):
     sub_position = relationship("SubPosition", back_populates="production_targets", foreign_keys=[sub_position_id])
 
 
+class ProductionPlan(Base):
+    __tablename__ = "production_plan"
+
+    id = Column(Integer, primary_key=True)
+    target = Column(Numeric(10, 2), nullable=False)
+    item_id = Column(Integer, ForeignKey("items.id", ondelete="RESTRICT"), nullable=False)
+    worker_id = Column(Integer, ForeignKey("workers.id", ondelete="RESTRICT"), nullable=False)
+    position_id = Column(Integer, ForeignKey("positions.id", ondelete="RESTRICT"), nullable=True)
+    shift_id = Column(Integer, ForeignKey("shifts.id", ondelete="RESTRICT"), nullable=False)
+    sub_position_id = Column(Integer, ForeignKey("sub_positions.id", ondelete="RESTRICT"), nullable=True)
+    note = Column(Text, nullable=True)
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now(), nullable=False)
+    created_by = Column(Integer, ForeignKey("workers.id", ondelete="RESTRICT"), nullable=False)
+
+    item = relationship("Item", back_populates="production_plans")
+    worker = relationship("Worker", back_populates="production_plans_assigned", foreign_keys=[worker_id])
+    position = relationship("Position", back_populates="production_plans", foreign_keys=[position_id])
+    shift = relationship("Shift", back_populates="production_plans")
+    sub_position = relationship("SubPosition", back_populates="production_plans")
+    created_by_worker = relationship("Worker", back_populates="production_plans_created", foreign_keys=[created_by])
+
+
 class Position(Base):
     __tablename__ = "positions"
 
@@ -83,6 +106,7 @@ class Position(Base):
 
     # Relationships
     production_targets = relationship("ProductionTarget", back_populates="position")
+    production_plans = relationship("ProductionPlan", back_populates="position")
     sub_positions = relationship("SubPosition", back_populates="position", cascade="all, delete-orphan")
     workers = relationship("Worker", back_populates="position", cascade="all, delete-orphan")
     production_logs = relationship("ProductionLog", back_populates="position", cascade="all, delete-orphan")
@@ -104,6 +128,7 @@ class SubPosition(Base):
     production_targets = relationship("ProductionTarget", back_populates="sub_position")
     position = relationship("Position", back_populates="sub_positions")
     production_logs = relationship("ProductionLog", back_populates="sub_position", cascade="all, delete-orphan")
+    production_plans = relationship("ProductionPlan", back_populates="sub_position")
 
     __table_args__ = (
         {"extend_existing": True}
@@ -125,6 +150,8 @@ class Worker(Base):
     production_logs = relationship("ProductionLog", back_populates="worker", foreign_keys="ProductionLog.worker_id", cascade="all, delete-orphan")
     approved_coordinator_logs = relationship("ProductionLog", back_populates="approved_coordinator_by_worker", foreign_keys="ProductionLog.approved_coordinator_by", cascade="all, delete-orphan")
     approved_spv_logs = relationship("ProductionLog", back_populates="approved_spv_by_worker", foreign_keys="ProductionLog.approved_spv_by", cascade="all, delete-orphan")
+    production_plans_assigned = relationship("ProductionPlan", back_populates="worker", foreign_keys="ProductionPlan.worker_id", cascade="all, delete-orphan")
+    production_plans_created = relationship("ProductionPlan", back_populates="created_by_worker", foreign_keys="ProductionPlan.created_by", cascade="all, delete-orphan")
     attendances = relationship("Attendance", back_populates="worker", cascade="all, delete-orphan")
 
     __table_args__ = (
@@ -140,6 +167,7 @@ class Shift(Base):
 
     # Relationships
     production_logs = relationship("ProductionLog", back_populates="shift", cascade="all, delete-orphan")
+    production_plans = relationship("ProductionPlan", back_populates="shift", cascade="all, delete-orphan")
 
 
 class Supplier(Base):
@@ -162,6 +190,7 @@ class Item(Base):
 
     # Relationships
     production_logs = relationship("ProductionLog", back_populates="item", cascade="all, delete-orphan")
+    production_plans = relationship("ProductionPlan", back_populates="item", cascade="all, delete-orphan")
 
 
 class ProblemComment(Base):

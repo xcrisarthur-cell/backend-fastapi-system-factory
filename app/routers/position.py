@@ -14,6 +14,7 @@ def get_positions(db: Session = Depends(get_db)):
 
 
 @router.get("/{position_id}", response_model=schemas.PositionResponse)
+@router.get("/{position_id}/", response_model=schemas.PositionResponse)
 def get_position(position_id: int, db: Session = Depends(get_db)):
     """Get a position by ID"""
     position = db.query(models.Position)\
@@ -24,6 +25,7 @@ def get_position(position_id: int, db: Session = Depends(get_db)):
     return position
 
 
+@router.post("", response_model=schemas.PositionResponse, status_code=201)
 @router.post("/", response_model=schemas.PositionResponse, status_code=201)
 def create_position(data: schemas.PositionCreate, db: Session = Depends(get_db)):
     """Create a new position"""
@@ -45,6 +47,7 @@ def create_position(data: schemas.PositionCreate, db: Session = Depends(get_db))
 
 
 @router.put("/{position_id}", response_model=schemas.PositionResponse)
+@router.put("/{position_id}/", response_model=schemas.PositionResponse)
 def update_position(position_id: int, data: schemas.PositionUpdate, db: Session = Depends(get_db)):
     """Update a position"""
     position = db.query(models.Position)\
@@ -74,6 +77,7 @@ def update_position(position_id: int, data: schemas.PositionUpdate, db: Session 
 
 
 @router.delete("/{position_id}")
+@router.delete("/{position_id}/")
 def delete_position(position_id: int, db: Session = Depends(get_db)):
     """Delete a position"""
     position = db.query(models.Position)\

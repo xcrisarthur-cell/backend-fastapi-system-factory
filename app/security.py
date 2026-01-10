@@ -2,9 +2,11 @@
 Security utilities for password hashing
 """
 import bcrypt
+import logging
 
 # Bcrypt has a maximum password length of 72 bytes
 BCRYPT_MAX_PASSWORD_LENGTH = 72
+logger = logging.getLogger(__name__)
 
 
 def hash_password(password: str) -> str:
@@ -26,7 +28,7 @@ def hash_password(password: str) -> str:
     # Truncate if password is longer than 72 bytes (bcrypt limit)
     if len(password_bytes) > BCRYPT_MAX_PASSWORD_LENGTH:
         password_bytes = password_bytes[:BCRYPT_MAX_PASSWORD_LENGTH]
-        print(f"[WARNING] Password truncated to {BCRYPT_MAX_PASSWORD_LENGTH} bytes (bcrypt limit)")
+        logger.warning("Password truncated to %s bytes (bcrypt limit)", BCRYPT_MAX_PASSWORD_LENGTH)
     
     # Generate salt and hash password using bcrypt directly
     salt = bcrypt.gensalt()

@@ -16,6 +16,7 @@ def get_attendances(db: Session = Depends(get_db)):
 
 
 @router.get("/{attendance_id}", response_model=schemas.AttendanceResponse)
+@router.get("/{attendance_id}/", response_model=schemas.AttendanceResponse)
 def get_attendance(attendance_id: int, db: Session = Depends(get_db)):
     """Get an attendance by ID"""
     attendance = db.query(models.Attendance)\
@@ -54,6 +55,7 @@ def create_attendance(data: schemas.AttendanceCreate, db: Session = Depends(get_
 
 
 @router.put("/{attendance_id}", response_model=schemas.AttendanceResponse)
+@router.put("/{attendance_id}/", response_model=schemas.AttendanceResponse)
 def update_attendance(attendance_id: int, data: schemas.AttendanceUpdate, db: Session = Depends(get_db)):
     """Update an attendance record"""
     attendance = db.query(models.Attendance).filter(models.Attendance.id == attendance_id).first()
@@ -83,6 +85,7 @@ def update_attendance(attendance_id: int, data: schemas.AttendanceUpdate, db: Se
 
 
 @router.delete("/{attendance_id}")
+@router.delete("/{attendance_id}/")
 def delete_attendance(attendance_id: int, db: Session = Depends(get_db)):
     """Delete an attendance record"""
     attendance = db.query(models.Attendance).filter(models.Attendance.id == attendance_id).first()
