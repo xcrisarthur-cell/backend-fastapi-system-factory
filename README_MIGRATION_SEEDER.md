@@ -2,7 +2,7 @@
 
 ## 📋 Deskripsi
 
-Dokumentasi untuk menjalankan migration database dan seeder data untuk MKP Operational System.
+Dokumentasi untuk menjalankan migration database dan seeder data untuk Matrix System.
 
 ## 🚀 Setup Awal
 

@@ -1,64 +1,49 @@
-# Quick Start Guide - Migration & Seeder
+# Quick Start Guide - Environment Automation
 
-## 🚀 Quick Setup
+## 🚀 One-Command Setup
 
-### 1. Install Dependencies
+Untuk setup environment lengkap (Database, Migration, Seeding) dan menjalankan server dalam satu perintah:
+
 ```bash
-pip install -r requirements.txt
+./start.sh
 ```
 
-### 2. Setup Database
-Pastikan `.env` file sudah ada dengan `DATABASE_URL`:
+Script ini akan otomatis:
+1.  **Cek & Buat Database**: Jika database belum ada, akan dibuat otomatis.
+2.  **Jalankan Migrasi**: Memastikan struktur tabel sesuai dengan schema terbaru (`alembic upgrade head`).
+3.  **Jalankan Seeder**: Mengisi/Update data master (Division, Dept, Workers, dll) jika belum ada.
+4.  **Jalankan Server**: Menjalankan server FastAPI (`uvicorn`) di port 8000.
+
+---
+
+## 🛠 Manual Setup (Jika diperlukan)
+
+Jika Anda ingin menjalankan langkah-langkah secara terpisah:
+
+### 1. Setup Environment & Database
+Menggunakan script manager:
+```bash
+python manage.py
+```
+Perintah ini akan melakukan pengecekan database, migrasi, dan seeding tanpa menjalankan server.
+
+### 2. Jalankan Server
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+---
+
+## 📝 Configuration
+
+Pastikan file `.env` Anda memiliki konfigurasi database yang benar:
+
 ```env
 DATABASE_URL=postgresql://username:password@localhost:5432/dbname
 ```
 
-### 3. Run Migration
-```bash
-# Create all tables
-alembic upgrade head
-```
+## 🧹 Cleaning Up
 
-Atau menggunakan helper script:
-```bash
-python run_migration.py upgrade head
-```
-
-### 4. Seed Database
-```bash
-python seed.py
-```
-
-**Note**: Seeder akan menghapus semua data yang ada sebelum mengisi data baru.
-
-## 📊 Data yang Akan Dibuat
-
-- ✅ 5 Divisions
-- ✅ 15 Departments (3 per division)
-- ✅ 10 Positions
-- ✅ 20 Sub Positions (2 per position)
-- ✅ 50 Workers
-- ✅ 3 Shifts
-- ✅ 10 Suppliers
-- ✅ 30 Items
-- ✅ 15 Problem Comments
-- ✅ 200 Production Logs
-- ✅ ~80 Production Log Problem Comment Links
-
-## 🔄 Reset Database
-
-```bash
-# Drop all tables
-alembic downgrade base
-
-# Create tables again
-alembic upgrade head
-
-# Seed new data
-python seed.py
-```
-
-## 📚 Dokumentasi Lengkap
-
-Lihat `README_MIGRATION_SEEDER.md` untuk dokumentasi lengkap.
-
+Jika Anda ingin mereset total database (HATI-HATI: Data akan hilang):
+1.  Drop database secara manual di PostgreSQL.
+2.  Jalankan `./start.sh` atau `python manage.py` untuk membuat ulang dari nol.

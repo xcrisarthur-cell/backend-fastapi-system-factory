@@ -13,7 +13,7 @@ from app.routers import (
 )
 
 app = FastAPI(
-    title="MKP Operational API",
+    title="Matrix API",
     redirect_slashes=False  # Disable automatic redirect from /positions to /positions/
 )
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 @app.get("/")
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "service": "MKP Operational API"}
+    return {"status": "ok", "service": "Matrix API"}
 
 # CORS configuration - supports both development and production
 # Set ALLOWED_ORIGINS environment variable for production (comma-separated)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================================"
-echo "MKP Deployment Troubleshooter"
+echo "Matrix Deployment Troubleshooter"
 echo "========================================================"
 
 echo -e "\n1. Checking if Nginx is running..."
@@ -35,7 +35,7 @@ fi
 
 echo -e "\n5. Checking Docker Containers..."
 # Navigate to directory if possible, or just list all
-sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep mkp
+sudo docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep matrix
 
 echo -e "\n6. Checking Local Backend Connection (from inside server)..."
 if curl -s http://127.0.0.1:8000/health > /dev/null; then
@@ -48,7 +48,7 @@ fi
 echo -e "\n========================================================"
 echo "SUGGESTED FIXES:"
 echo "1. If Port 1101 is not listening:"
-echo "   Run: sudo ln -sf /etc/nginx/sites-available/mkp_backend_api /etc/nginx/sites-enabled/"
+echo "   Run: sudo ln -sf /etc/nginx/sites-available/matrix_backend_api /etc/nginx/sites-enabled/"
 echo "   Run: sudo systemctl restart nginx"
 echo ""
 echo "2. If UFW is active but 1101 is missing:"

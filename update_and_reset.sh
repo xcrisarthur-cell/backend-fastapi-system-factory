@@ -4,7 +4,7 @@
 # Pastikan dijalankan dari root folder project
 
 echo "========================================================"
-echo "MKP Update & Reset Database Script"
+echo "Matrix Update & Reset Database Script"
 echo "========================================================"
 
 # 1. Update kode dari Git

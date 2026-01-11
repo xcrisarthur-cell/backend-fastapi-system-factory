@@ -682,7 +682,7 @@ def seed_attendances(db: Session, workers: list, count: int = 10):
 def main():
     """Main seeder function"""
     print("=" * 60)
-    print("MKP Operational Database Seeder")
+    print("Matrix Database Seeder")
     print("Using embedded priority data")
     print("=" * 60)
     
