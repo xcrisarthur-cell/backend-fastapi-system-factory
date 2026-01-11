@@ -1,5 +1,4 @@
 import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os
 import re
 import sys
@@ -15,7 +14,6 @@ def reset_database():
 
     # Simple regex to parse postgres url
     # postgresql://user:pass@host:port/dbname
-    # Handle optional port
     match = re.match(r"postgresql://([^:]+):([^@]+)@([^:/]+)(?::(\d+))?/([^?]+)", db_url)
     
     if not match:
@@ -26,40 +24,53 @@ def reset_database():
     if not port:
         port = "5432"
 
-    print(f"Connecting to postgres to reset '{dbname}'...")
+    print(f"Connecting to database '{dbname}' to drop all tables...")
 
     try:
-        # Connect to default 'postgres' database
+        # Connect to the target database directly
         con = psycopg2.connect(
             user=user,
             password=password,
             host=host,
             port=port,
-            database="postgres"
+            database=dbname
         )
-        con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        con.autocommit = True
         cursor = con.cursor()
 
-        # Kill existing connections
-        print(f"Terminating existing connections to {dbname}...")
-        cursor.execute(f"""
-            SELECT pg_terminate_backend(pg_stat_activity.pid)
-            FROM pg_stat_activity
-            WHERE pg_stat_activity.datname = '{dbname}'
-            AND pid <> pg_backend_pid();
+        print("Dropping all tables in public schema...")
+        cursor.execute("""
+            DO $$ DECLARE
+                r RECORD;
+            BEGIN
+                -- Drop tables
+                FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+                    EXECUTE 'DROP TABLE IF EXISTS "public"."' || r.tablename || '" CASCADE';
+                END LOOP;
+            END $$;
         """)
-
-        # Drop database
-        print(f"Dropping database {dbname}...")
-        cursor.execute(f"DROP DATABASE IF EXISTS {dbname}")
-
-        # Create database
-        print(f"Creating database {dbname}...")
-        cursor.execute(f"CREATE DATABASE {dbname}")
+        
+        print("Dropping all types/enums in public schema...")
+        cursor.execute("""
+            DO $$ DECLARE
+                r RECORD;
+            BEGIN
+                -- Drop enums/types
+                FOR r IN (
+                    SELECT t.typname 
+                    FROM pg_type t 
+                    JOIN pg_namespace n ON t.typnamespace = n.oid 
+                    WHERE n.nspname = 'public' 
+                    AND t.typtype = 'e'
+                ) LOOP
+                    EXECUTE 'DROP TYPE IF EXISTS "public"."' || r.typname || '" CASCADE';
+                END LOOP;
+            END $$;
+        """)
 
         cursor.close()
         con.close()
-        print("Database reset successfully.")
+        print("Database reset successfully (all tables dropped).")
 
     except Exception as e:
         print(f"Error resetting database: {e}")
