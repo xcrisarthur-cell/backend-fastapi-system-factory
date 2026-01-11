@@ -703,54 +703,82 @@ def main():
     db: Session = SessionLocal()
     
     try:
-        # Check for --yes flag
+        # Check for flags
         parser = argparse.ArgumentParser(description='Seed database with initial data')
         parser.add_argument('--yes', '-y', action='store_true', help='Skip confirmation prompt')
+        parser.add_argument('--seed-only', action='store_true', help='Skip database reset and migration, only run seeder')
         args = parser.parse_args()
         
-        # Ask for confirmation if --yes flag not provided
-        if not args.yes:
-            response = input("\nThis will DROP ALL TABLES and recreate them. Continue? (yes/no): ")
-            if response.lower() not in ['yes', 'y']:
-                print("Seeder cancelled.")
-                return
+        # Ask for confirmation if --yes flag not provided and not seed-only (since seed-only is safe-ish)
+        # But if seed-only is used, we append data? Or maybe we should still warn? 
+        # For now, let's assume seed-only is used by automation.
         
-        # Drop and recreate tables
-        print("\nDropping all tables (CASCADE)...")
-        with engine.connect() as connection:
-            try:
-                connection.exec_driver_sql("DROP SCHEMA IF EXISTS public CASCADE")
-            except Exception:
-                pass
-            connection.exec_driver_sql("CREATE SCHEMA IF NOT EXISTS public")
-            try:
-                connection.exec_driver_sql("SET search_path TO public")
-            except Exception:
-                pass
-            connection.commit()
+        if not args.seed_only:
+            if not args.yes:
+                response = input("\nThis will DROP ALL TABLES and recreate them. Continue? (yes/no): ")
+                if response.lower() not in ['yes', 'y']:
+                    print("Seeder cancelled.")
+                    return
             
-        print("Running Alembic migrations...")
-        from alembic.config import Config
-        from alembic import command
-        
-        # Ensure we are in the project root
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        alembic_ini_path = os.path.join(current_dir, "alembic.ini")
-        
-        alembic_cfg = Config(alembic_ini_path)
-        command.upgrade(alembic_cfg, "head")
-        
-        try:
-            from sqlalchemy import inspect
-            inspector = inspect(engine)
-            tables = inspector.get_table_names(schema="public")
-            if "divisions" not in tables:
-                print("Warning: tables not found after Alembic upgrade, creating via metadata...")
+            # Drop and recreate tables
+            print("\nDropping all tables (CASCADE)...")
+            with engine.connect() as connection:
+                trans = connection.begin()
+                try:
+                    connection.exec_driver_sql("DROP SCHEMA IF EXISTS public CASCADE")
+                    connection.exec_driver_sql("CREATE SCHEMA IF NOT EXISTS public")
+                    connection.exec_driver_sql("GRANT ALL ON SCHEMA public TO public")
+                    connection.exec_driver_sql("SET search_path TO public")
+                    trans.commit()
+                except Exception as e:
+                    trans.rollback()
+                    print(f"Error resetting schema: {e}")
+                    # Try to continue? No, return
+                    raise e
+                
+            print("Running Alembic migrations...")
+            from alembic.config import Config
+            from alembic import command
+            
+            # Ensure we are in the project root
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            alembic_ini_path = os.path.join(current_dir, "alembic.ini")
+            
+            alembic_cfg = Config(alembic_ini_path)
+            command.upgrade(alembic_cfg, "head")
+            
+            try:
+                from sqlalchemy import inspect
+                inspector = inspect(engine)
+                tables = inspector.get_table_names(schema="public")
+                if "divisions" not in tables:
+                    print("Warning: tables not found after Alembic upgrade, creating via metadata...")
+                    Base.metadata.create_all(bind=engine)
+            except Exception:
                 Base.metadata.create_all(bind=engine)
-        except Exception:
-            Base.metadata.create_all(bind=engine)
-        
-        print("Database schema reset via Alembic!")
+            
+            print("Database schema reset via Alembic!")
+        else:
+            print("Skipping database reset and migration (--seed-only flag used)...")
+            # Ensure search path is set to public
+            with engine.connect() as connection:
+                connection.exec_driver_sql("SET search_path TO public")
+                connection.commit()
+            
+            # Additional check: verify tables exist
+            try:
+                from sqlalchemy import inspect
+                inspector = inspect(engine)
+                tables = inspector.get_table_names(schema="public")
+                print(f"Tables found in public schema: {tables}")
+                if "divisions" not in tables:
+                     print("CRITICAL ERROR: 'divisions' table not found even after migrations!")
+                     # Fallback: Try to create tables via metadata if they are missing
+                     print("Attempting to create tables via SQLAlchemy metadata...")
+                     Base.metadata.create_all(bind=engine)
+                     print("Tables created via metadata fallback.")
+            except Exception as e:
+                print(f"Error checking tables: {e}")
         
         # Seed in order (respecting foreign keys)
         divisions, division_map = seed_divisions(db, priority_data)

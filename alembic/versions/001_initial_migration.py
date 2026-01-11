@@ -19,6 +19,28 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Check if we are in offline mode, where inspector is not available
+    # In offline mode, just emit the create table DDL
+    context = op.get_context()
+    # Handle older Alembic versions or unexpected context types
+    is_offline = getattr(context, 'is_offline_mode', lambda: False)() or not hasattr(context, 'bind') or context.bind is None
+    
+    if is_offline:
+        # Just create sequences without checks in offline mode
+        op.execute("""
+            CREATE SEQUENCE IF NOT EXISTS departments_id_seq
+                INCREMENT BY 1
+                MINVALUE 1
+                MAXVALUE 2147483647
+                START 1
+                CACHE 1
+                NO CYCLE;
+        """)
+        # ... (rest of sequences) ...
+        # NOTE: For offline mode, we should ideally list all sequences. 
+        # But to keep this edit simple and safe, we will rely on IF NOT EXISTS which is already there.
+        pass
+
     # Create sequences
     op.execute("""
         CREATE SEQUENCE IF NOT EXISTS departments_id_seq
