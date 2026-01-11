@@ -171,6 +171,17 @@ def delete_worker(worker_id: int, db: Session = Depends(get_db)):
     if not worker:
         raise HTTPException(status_code=404, detail="Worker tidak ditemukan")
     
-    db.delete(worker)
-    db.commit()
-    return {"message": "Worker berhasil dihapus"}
+    try:
+        # Unlink from approved logs (set to NULL)
+        db.query(models.ProductionLog).filter(models.ProductionLog.approved_coordinator_by == worker_id).update({models.ProductionLog.approved_coordinator_by: None})
+        db.query(models.ProductionLog).filter(models.ProductionLog.approved_spv_by == worker_id).update({models.ProductionLog.approved_spv_by: None})
+        
+        db.delete(worker)
+        db.commit()
+        return {"message": "Worker berhasil dihapus"}
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Tidak dapat menghapus worker karena masih ada data yang terkait (misalnya production plans)")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error deleting worker: {str(e)}")

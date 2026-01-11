@@ -51,7 +51,7 @@ class Department(Base):
 
     # Relationships
     division = relationship("Division", back_populates="departments")
-    workers = relationship("Worker", back_populates="department", cascade="all, delete-orphan")
+    workers = relationship("Worker", back_populates="department")
 
     __table_args__ = (
         {"extend_existing": True}

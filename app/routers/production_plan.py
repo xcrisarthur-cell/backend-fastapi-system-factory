@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app import models, schemas
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/production-plans", tags=["Production Plans"])
 
@@ -17,29 +20,33 @@ def get_production_plans(
     sub_position_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
 ):
-    query = db.query(models.ProductionPlan).options(
-        joinedload(models.ProductionPlan.item),
-        joinedload(models.ProductionPlan.worker),
-        joinedload(models.ProductionPlan.position),
-        joinedload(models.ProductionPlan.shift),
-        joinedload(models.ProductionPlan.sub_position),
-        joinedload(models.ProductionPlan.created_by_worker),
-    )
+    try:
+        query = db.query(models.ProductionPlan).options(
+            joinedload(models.ProductionPlan.item),
+            joinedload(models.ProductionPlan.worker),
+            joinedload(models.ProductionPlan.position),
+            joinedload(models.ProductionPlan.shift),
+            joinedload(models.ProductionPlan.sub_position),
+            joinedload(models.ProductionPlan.created_by_worker),
+        )
 
-    if worker_id is not None:
-        query = query.filter(models.ProductionPlan.worker_id == worker_id)
-    if created_by is not None:
-        query = query.filter(models.ProductionPlan.created_by == created_by)
-    if item_id is not None:
-        query = query.filter(models.ProductionPlan.item_id == item_id)
-    if position_id is not None:
-        query = query.filter(models.ProductionPlan.position_id == position_id)
-    if shift_id is not None:
-        query = query.filter(models.ProductionPlan.shift_id == shift_id)
-    if sub_position_id is not None:
-        query = query.filter(models.ProductionPlan.sub_position_id == sub_position_id)
+        if worker_id is not None:
+            query = query.filter(models.ProductionPlan.worker_id == worker_id)
+        if created_by is not None:
+            query = query.filter(models.ProductionPlan.created_by == created_by)
+        if item_id is not None:
+            query = query.filter(models.ProductionPlan.item_id == item_id)
+        if position_id is not None:
+            query = query.filter(models.ProductionPlan.position_id == position_id)
+        if shift_id is not None:
+            query = query.filter(models.ProductionPlan.shift_id == shift_id)
+        if sub_position_id is not None:
+            query = query.filter(models.ProductionPlan.sub_position_id == sub_position_id)
 
-    return query.order_by(models.ProductionPlan.created_at.desc()).all()
+        return query.order_by(models.ProductionPlan.created_at.desc()).all()
+    except Exception as e:
+        logger.error(f"Error fetching production plans: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 @router.get("/{plan_id}", response_model=schemas.ProductionPlanResponse)
