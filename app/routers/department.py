@@ -128,5 +128,9 @@ def delete_department(department_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Department tidak ditemukan")
     
     db.delete(department)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Tidak dapat menghapus department karena masih ada data yang terkait (misalnya workers)")
     return {"message": "Department berhasil dihapus"}

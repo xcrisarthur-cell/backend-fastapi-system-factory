@@ -1,7 +1,9 @@
 import os
 import logging
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
 from app.database import Base, engine
 from app.routers import (
     worker, position, sub_position,
@@ -18,6 +20,23 @@ app = FastAPI(
 )
 
 logger = logging.getLogger(__name__)
+
+# Global Exception Handlers
+@app.exception_handler(IntegrityError)
+async def integrity_error_handler(request: Request, exc: IntegrityError):
+    logger.warning(f"IntegrityError: {exc}")
+    return JSONResponse(
+        status_code=409,
+        content={"detail": "Database constraint violation. This usually means you are trying to delete data that is being used, or creating duplicate data."}
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Global Exception: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error. Please contact support."}
+    )
 
 # Health check endpoint
 @app.get("/")

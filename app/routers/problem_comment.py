@@ -81,5 +81,9 @@ def delete_comment(comment_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Problem comment tidak ditemukan")
     
     db.delete(comment)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Tidak dapat menghapus problem comment karena masih ada data yang terkait")
     return {"message": "Problem comment berhasil dihapus"}

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from app.database import get_db
 from app import models, schemas
 
@@ -81,5 +82,9 @@ def delete_shift(shift_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Shift tidak ditemukan")
     
     db.delete(shift)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Tidak dapat menghapus shift karena masih ada data yang terkait (misalnya production_plans atau production_logs)")
     return {"message": "Shift berhasil dihapus"}

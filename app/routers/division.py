@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import IntegrityError
 from app.database import get_db
 from app import models, schemas
 
@@ -96,5 +97,9 @@ def delete_division(division_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Division tidak ditemukan")
     
     db.delete(division)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Tidak dapat menghapus division karena masih ada data yang terkait (misalnya departments)")
     return {"message": "Division berhasil dihapus"}

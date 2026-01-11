@@ -127,5 +127,9 @@ def delete_sub_position(sub_position_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Sub position tidak ditemukan")
     
     db.delete(sub_position)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Tidak dapat menghapus sub position karena masih ada data yang terkait (misalnya production_targets)")
     return {"message": "Sub position berhasil dihapus"}

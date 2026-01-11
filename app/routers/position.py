@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from app.database import get_db
 from app import models, schemas
 
@@ -87,5 +88,9 @@ def delete_position(position_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Position tidak ditemukan")
     
     db.delete(position)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Tidak dapat menghapus position karena masih ada data yang terkait (misalnya sub_positions atau workers)")
     return {"message": "Position berhasil dihapus"}
