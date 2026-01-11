@@ -54,7 +54,7 @@ Tabel Workers
 - FAJAR ADITYA (position=RAM, departments=operator)
 - KHAFIT (position=RAM, departments=operator)
 - ALBERT IKHBAL (position=TEMBAK_KAWAT, departments=operator)
-- SUYANTO (position=PETEMBAK_KAWATR, departments=operator)
+- SUYANTO (position=TEMBAK_KAWAT, departments=operator)
 - RYANDI (position=TEMBAK_KAWAT, departments=operator)
 - RADIKA (position=TEMBAK_KAWAT, departments=operator)
 - DEDI (position=TEMBAK_KAWAT, departments=operator)

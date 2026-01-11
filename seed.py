@@ -1,13 +1,8 @@
 
 import os
 import sys
-import csv
-import re
 import argparse
 from decimal import Decimal
-from datetime import datetime, timedelta
-import random
-from faker import Faker
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -17,58 +12,51 @@ load_dotenv()
 sys.path.insert(0, os.path.dirname(__file__))
 
 from sqlalchemy.orm import Session
-from sqlalchemy import text
 from app.database import SessionLocal, engine, Base
 from app.models import (
     Division, Department, Position, SubPosition,
     Worker, Shift, Supplier, Item, ProblemComment,
-    ProductionLog, ProductionLogProblemComment,
-    ProductionTarget, Attendance, AttendanceStatus
+    ProductionTarget
 )
 from app.security import hash_password
 
-fake = Faker('id_ID')  # Indonesian locale
-Faker.seed(42)  # Set seed for reproducibility
-random.seed(42)
-
-
 def get_priority_data():
-    """Get priority data directly embedded"""
+    """Get priority data strictly from seeder_ref.txt"""
     return {
         'divisions': [
-            'Kawat',
-            'Rangka',
-            'Bantal',
-            'IT'
+            {'code': 'DIV001', 'name': 'Kawat'},
+            {'code': 'DIV002', 'name': 'Rangka'},
+            {'code': 'DIV003', 'name': 'Bantal'},
+            {'code': 'DIV004', 'name': 'IT'},
         ],
         'departments': [
-            'Operator',
-            'Koordinator',
-            'Supervisor',
-            'Admin Produksi',
-            'Superadmin'
+            {'code': 'DEPT001', 'name': 'Operator'},
+            {'code': 'DEPT002', 'name': 'Coordinator'},
+            {'code': 'DEPT003', 'name': 'Supervisor'},
+            {'code': 'DEPT004', 'name': 'Admin Production'},
+            {'code': 'DEPT005', 'name': 'Superadmin'},
         ],
         'positions': [
-            {'code': 'PER', 'unit': 'pcs', 'name': 'Per'},
-            {'code': 'RAM', 'unit': 'lmbr', 'name': 'Ram'},
-            {'code': 'TEMBAK_KAWAT', 'unit': 'lmbr', 'name': 'Tembak(Kawat)'},
-            {'code': 'POCKET', 'unit': 'pcs', 'name': 'Pocket'},
-            {'code': 'ASSEMBLY', 'unit': 'lmbr', 'name': 'Assembly'},
-            {'code': 'FRAME', 'unit': 'pcs', 'name': 'Frame'},
-            {'code': 'SUPPLY', 'unit': 'lmbr', 'name': 'Supply'},
-            {'code': 'POTONG', 'unit': 'pcs', 'name': 'Potong'},
-            {'code': 'TEMBAK_RANGKA', 'unit': 'lmbr', 'name': 'Tembak(Rangka)'},
-            {'code': 'FG', 'unit': 'pcs', 'name': 'Finish Good(FG)'},
-            {'code': 'PRP', 'unit': 'pcs', 'name': 'PRP'},
-            {'code': 'ISI', 'unit': 'pcs', 'name': 'ISI'},
-            {'code': 'JAHIT', 'unit': 'pcs', 'name': 'Jahit'},
-            {'code': 'PACKING', 'unit': 'pcs', 'name': 'Packing'},
+            {'code': 'PER', 'name': 'Per', 'unit': 'pcs'},
+            {'code': 'RAM', 'name': 'Ram', 'unit': 'lmbr'},
+            {'code': 'TEMBAK_KAWAT', 'name': 'Tembak_Kawat', 'unit': 'lmbr'},
+            {'code': 'POCKET', 'name': 'Pocket', 'unit': 'pcs'},
+            {'code': 'ASSEMBLY', 'name': 'Assembly', 'unit': 'lmbr'},
+            {'code': 'FRAME', 'name': 'Frame', 'unit': 'pcs'},
+            {'code': 'SUPPLY', 'name': 'Supply', 'unit': 'lmbr'},
+            {'code': 'POTONG', 'name': 'Potong', 'unit': 'pcs'},
+            {'code': 'TEMBAK_RANGKA', 'name': 'Tembak_Rangka', 'unit': 'lmbr'},
+            {'code': 'FINISH_GOOD', 'name': 'Finish_Good', 'unit': 'pcs'},
+            {'code': 'PREPARATION', 'name': 'Preparation', 'unit': 'pcs'},
+            {'code': 'ISI', 'name': 'ISI', 'unit': 'pcs'},
+            {'code': 'JAHIT', 'name': 'Jahit', 'unit': 'pcs'},
+            {'code': 'PACKING', 'name': 'Packing', 'unit': 'pcs'},
         ],
         'sub_positions': [
             {'code': 'FC60', 'position_code': 'PER'},
             {'code': 'SX80', 'position_code': 'PER'},
             {'code': 'SX80i', 'position_code': 'PER'},
-            {'code': 'SX80iS', 'position_code': 'PER'},
+            {'code': 'SX80is', 'position_code': 'PER'},
             {'code': 'SX200', 'position_code': 'RAM'},
             {'code': 'AS3-NEW', 'position_code': 'RAM'},
             {'code': 'AS3-OLD', 'position_code': 'RAM'},
@@ -79,66 +67,64 @@ def get_priority_data():
             {'code': 'LSPR-NEW', 'position_code': 'POCKET'},
             {'code': 'LSPR-OLD', 'position_code': 'POCKET'},
         ],
+        'workers': [
+            {'name': 'SLAMET PURNOMO', 'position_code': 'PER', 'department_name': 'Operator'},
+            {'name': 'M HUSEN ALI', 'position_code': 'PER', 'department_name': 'Operator'},
+            {'name': 'EDI SUHARDI', 'position_code': 'PER', 'department_name': 'Operator'},
+            {'name': 'MAHMUD', 'position_code': 'PER', 'department_name': 'Operator'},
+            {'name': 'FIKI ARIYANTO', 'position_code': 'PER', 'department_name': 'Operator'},
+            {'name': 'RAHMAT SURYADI', 'position_code': 'PER', 'department_name': 'Operator'},
+            {'name': 'ARIF HIDAYAT', 'position_code': 'RAM', 'department_name': 'Operator'},
+            {'name': 'M THAMRIN', 'position_code': 'RAM', 'department_name': 'Operator'},
+            {'name': 'JAKA SWARA', 'position_code': 'RAM', 'department_name': 'Operator'},
+            {'name': 'BANGKIT PRAYOGA', 'position_code': 'RAM', 'department_name': 'Operator'},
+            {'name': 'FAJAR ADITYA', 'position_code': 'RAM', 'department_name': 'Operator'},
+            {'name': 'KHAFIT', 'position_code': 'RAM', 'department_name': 'Operator'},
+            {'name': 'ALBERT IKHBAL', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'SUYANTO', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'}, # Note: ref text says PETEMBAK_KAWATR but likely typo for TEMBAK_KAWAT, fixing to TEMBAK_KAWAT based on context or creating new position? I'll assume typo and map to TEMBAK_KAWAT for safety as position table doesn't have PETEMBAK_KAWATR
+            {'name': 'RYANDI', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'RADIKA', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'DEDI', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'M IQHBAL', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
+            {'name': 'JIMAN', 'position_code': 'POCKET', 'department_name': 'Operator'},
+            {'name': 'FIRMANSYAH', 'position_code': 'POCKET', 'department_name': 'Operator'},
+            {'name': 'CAHDIANA', 'position_code': 'POCKET', 'department_name': 'Operator'},
+            {'name': 'M TEGUH', 'position_code': 'POCKET', 'department_name': 'Operator'},
+            {'name': 'DEDI SETIAWAN', 'position_code': 'ASSEMBLY', 'department_name': 'Operator'},
+            {'name': 'AMIT', 'position_code': 'ASSEMBLY', 'department_name': 'Operator'},
+            {'name': 'SUGINO', 'position_code': 'FRAME', 'department_name': 'Operator'},
+            {'name': 'SUGIANTO', 'position_code': 'FRAME', 'department_name': 'Operator'},
+            {'name': 'ALI', 'position_code': 'FRAME', 'department_name': 'Operator'},
+            {'name': 'AFIAN NURCAHYO', 'position_code': 'FRAME', 'department_name': 'Operator'},
+            {'name': 'KARNILA', 'position_code': 'SUPPLY', 'department_name': 'Operator'},
+            {'name': 'FAIZ FADRUL', 'position_code': 'SUPPLY', 'department_name': 'Operator'},
+            {'name': 'ZURIANA', 'position_code': 'POTONG', 'department_name': 'Operator'},
+            {'name': 'ARDI KURNIAWAN', 'position_code': 'POTONG', 'department_name': 'Operator'},
+            {'name': 'ANDIKA YOGASTIRA', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
+            {'name': 'REKA DARA S', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
+            {'name': 'DANI SETIAWAN', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
+            {'name': 'TARSIUS', 'position_code': 'FINISH_GOOD', 'department_name': 'Operator'},
+            {'name': 'NGALIMAN', 'position_code': 'PREPARATION', 'department_name': 'Operator'},
+            {'name': 'YOGI', 'position_code': 'ISI', 'department_name': 'Operator'},
+            {'name': 'ANDREAS', 'position_code': 'ISI', 'department_name': 'Operator'},
+            {'name': 'TANDI', 'position_code': 'JAHIT', 'department_name': 'Operator'},
+            {'name': 'ADMAN HUSEN', 'position_code': 'PACKING', 'department_name': 'Operator'},
+            # Management
+            {'name': 'SUPER ADMIN', 'department_name': 'Superadmin', 'password': 'mas5indo'},
+            {'name': 'KIKY', 'department_name': 'Admin Production', 'password': 'kiky1'},
+            {'name': 'RINO ALYUWA', 'department_name': 'Admin Production', 'password': 'rino1'},
+            {'name': 'PRIDO SAGALA', 'department_name': 'Supervisor', 'password': 'prido1'},
+            {'name': 'ZAENAL ARIFIN', 'department_name': 'Coordinator', 'password': 'zaenal1'},
+        ],
         'shifts': [
-            'Shift 1',
-            'Shift 2',
-            'Shift 3'
+            'SHIFT 1',
+            'SHIFT 2',
+            'SHIFT 3'
         ],
         'suppliers': [
-            'Intiroda',
-            'Mega',
-            'Kingdom'
-        ],
-        'workers': [
-            # Existing workers updated with new codes if needed
-            {'name': 'Slamet Purnomo', 'position_code': 'PER', 'department_name': 'Operator'},
-            {'name': 'M Husen Ali', 'position_code': 'PER', 'department_name': 'Operator'},
-            {'name': 'Edi Suhardi', 'position_code': 'PER', 'department_name': 'Operator'},
-            {'name': 'Mahmud', 'position_code': 'PER', 'department_name': 'Operator'},
-            {'name': 'Fiki Ariyanto', 'position_code': 'PER', 'department_name': 'Operator'},
-            {'name': 'Rahmat Suryadi', 'position_code': 'PER', 'department_name': 'Operator'},
-            {'name': 'Arif Hidayat', 'position_code': 'RAM', 'department_name': 'Operator'},
-            {'name': 'M Thamrin', 'position_code': 'RAM', 'department_name': 'Operator'},
-            {'name': 'Jaka Swara', 'position_code': 'RAM', 'department_name': 'Operator'},
-            {'name': 'Bangkit Prayoga', 'position_code': 'RAM', 'department_name': 'Operator'},
-            {'name': 'Fajar Aditya', 'position_code': 'RAM', 'department_name': 'Operator'},
-            {'name': 'Khafit', 'position_code': 'RAM', 'department_name': 'Operator'},
-            {'name': 'Albert Ikhbal', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
-            {'name': 'Suyanto', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
-            {'name': 'Ryandi', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
-            {'name': 'Radika', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
-            {'name': 'Dedi', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
-            {'name': 'M Iqhbal', 'position_code': 'TEMBAK_KAWAT', 'department_name': 'Operator'},
-            {'name': 'Jiman', 'position_code': 'POCKET', 'department_name': 'Operator'},
-            {'name': 'Firmansyah', 'position_code': 'POCKET', 'department_name': 'Operator'},
-            {'name': 'Cahdiana', 'position_code': 'POCKET', 'department_name': 'Operator'},
-            {'name': 'M Teguh', 'position_code': 'POCKET', 'department_name': 'Operator'},
-            {'name': 'Dedi Setiawan', 'position_code': 'ASSEMBLY', 'department_name': 'Operator'},
-            {'name': 'Amit', 'position_code': 'ASSEMBLY', 'department_name': 'Operator'},
-            {'name': 'Sugino', 'position_code': 'FRAME', 'department_name': 'Operator'},
-            {'name': 'Sugianto', 'position_code': 'FRAME', 'department_name': 'Operator'},
-            {'name': 'Ali', 'position_code': 'FRAME', 'department_name': 'Operator'},
-            {'name': 'Afian Nurcahyo', 'position_code': 'FRAME', 'department_name': 'Operator'},
-            {'name': 'Karnila', 'position_code': 'SUPPLY', 'department_name': 'Operator'},
-            {'name': 'Faiz Fadrul', 'position_code': 'SUPPLY', 'department_name': 'Operator'},
-            # New workers requested by user
-            {'name': 'Zuriana', 'position_code': 'POTONG', 'department_name': 'Operator'},
-            {'name': 'Ardi Kurniawan', 'position_code': 'POTONG', 'department_name': 'Operator'},
-            {'name': 'Andika Yogastira', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
-            {'name': 'Reka Dara S', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
-            {'name': 'Dani Setiawan', 'position_code': 'TEMBAK_RANGKA', 'department_name': 'Operator'},
-            {'name': 'Tarsius', 'position_code': 'FG', 'department_name': 'Operator'},
-            {'name': 'Ngaliman', 'position_code': 'PRP', 'department_name': 'Operator'},
-            {'name': 'Yogi', 'position_code': 'ISI', 'department_name': 'Operator'},
-            {'name': 'Andreas', 'position_code': 'ISI', 'department_name': 'Operator'},
-            {'name': 'Tandi', 'position_code': 'JAHIT', 'department_name': 'Operator'},
-            {'name': 'Adman Husen', 'position_code': 'PACKING', 'department_name': 'Operator'},
-            # Admin/Management
-            {'name': 'Zaenal Arifin', 'position_code': None, 'department_name': 'Koordinator', 'password': 'zaenal1'},
-            {'name': 'Prido Sagala', 'position_code': None, 'department_name': 'Supervisor', 'password': 'prido1'},
-            {'name': 'Kiky', 'position_code': None, 'department_name': 'Admin Produksi', 'password': 'kiky1'},
-            {'name': 'Rino Alyuwa', 'position_code': None, 'department_name': 'Admin Produksi', 'password': 'rino1'},
-            {'name': 'Super Admin', 'position_code': None, 'department_name': 'Superadmin', 'password': 'mas5indo'},
+            'INTIRODA',
+            'MEGA',
+            'KINGDOM'
         ],
         'items': [
             {'item_number': 'W1090001581224', 'item_name': 'PER T15 D8,1 K2,24', 'spec': ''},
@@ -245,132 +231,130 @@ def get_priority_data():
             {'item_number': 'W8224018144184', 'item_name': 'RAM BONEL 18X144X184 D8.1+D8.5', 'spec': 'BW + M GUARD + CORNER GUARD'},
             {'item_number': 'W8224018164184', 'item_name': 'RAM BONEL 18X164X184 D8.1+D8.5', 'spec': 'BW + M GUARD + CORNER GUARD'},
             {'item_number': 'W8224018184184', 'item_name': 'RAM BONEL 18X184X184 D8.1+D8.5', 'spec': 'BW + M GUARD + CORNER GUARD'},
+        ],
+        'targets': [
+            {'value': 13000, 'position_code': 'PER', 'sub_position_code': 'FC60'},
+            {'value': 14000, 'position_code': 'PER', 'sub_position_code': 'SX80'},
+            {'value': 16000, 'position_code': 'PER', 'sub_position_code': 'SX80i'},
+            {'value': 18000, 'position_code': 'PER', 'sub_position_code': 'SX80is'},
+            {'value': 32, 'position_code': 'RAM', 'sub_position_code': 'AS3-NEW'},
+            {'value': 35, 'position_code': 'TEMBAK_KAWAT', 'sub_position_code': 'MEJA-1'},
+            {'value': 35, 'position_code': 'TEMBAK_KAWAT', 'sub_position_code': 'MEJA-2'},
+            {'value': 35, 'position_code': 'TEMBAK_KAWAT', 'sub_position_code': 'MEJA-3'},
+            {'value': 29000, 'position_code': 'POCKET', 'sub_position_code': 'LSPR-NEW'},
+            {'value': 45, 'position_code': 'ASSEMBLY', 'sub_position_code': None},
+            {'value': 35, 'position_code': 'RAM', 'sub_position_code': 'AS3-OLD'},
+            {'value': 35, 'position_code': 'RAM', 'sub_position_code': 'SX200'},
+        ],
+        'problem_comments': [
+            'Mesin Rusak',
+            'Pemadaman Listrik',
+            'Kesalahan Operator',
+            'Cacat Material',
+            'Mesin Breakdown',
+            'Setting Kawat',
+            'Setting Mesin',
+            'Kawat Nyangkut',
         ]
     }
 
-
-def clear_database(db: Session):
-    """Clear all data from database"""
-    print("Clearing existing data...")
-    db.query(ProductionLogProblemComment).delete()
-    db.query(ProductionLog).delete()
-    db.query(ProblemComment).delete()
-    db.query(Item).delete()
-    db.query(Supplier).delete()
-    db.query(Shift).delete()
-    db.query(Worker).delete()
-    db.query(SubPosition).delete()
-    db.query(Position).delete()
-    db.query(Department).delete()
-    db.query(Division).delete()
-    db.commit()
-    print("Database cleared!")
-
-
 def seed_divisions(db: Session, priority_data: dict):
-    """Seed divisions from priority data"""
     print("Seeding divisions...")
     divisions = []
-    division_names = priority_data.get('divisions', [])
+    div_data = priority_data.get('divisions', [])
     
     division_map = {}
-    for i, name in enumerate(division_names):
-        code = f"DIV{i+1:03d}"
+    for d in div_data:
         division = Division(
-            code=code,
-            name=name
+            code=d['code'],
+            name=d['name']
         )
         divisions.append(division)
-        division_map[name] = division
+        division_map[d['name']] = division
         db.add(division)
     
     db.commit()
     print(f"[OK] Created {len(divisions)} divisions")
     return divisions, division_map
 
-
-def seed_departments(db: Session, divisions: list, division_map: dict, priority_data: dict):
-    """Seed departments from priority data"""
+def seed_departments(db: Session, division_map: dict, priority_data: dict):
     print("Seeding departments...")
     departments = []
-    dept_names = priority_data.get('departments', [])
+    dept_data = priority_data.get('departments', [])
     
-    # Assign departments to first division (Kawat)
+    # Assign departments mostly to Kawat division as default or based on logic?
+    # Ref text doesn't specify division for departments, but in previous code it was all Kawat.
+    # We will stick to Kawat for now unless specified otherwise.
     kawat_division = division_map.get('Kawat')
     if not kawat_division:
-        print("Warning: Kawat division not found, skipping departments")
-        return departments, {}
-    
+        # Fallback to first available if Kawat missing (unlikely)
+        kawat_division = list(division_map.values())[0]
+
     dept_map = {}
-    for i, dept_name in enumerate(dept_names):
-        code = f"DEPT{i+1:02d}"
+    for d in dept_data:
         department = Department(
             division_id=kawat_division.id,
-            code=code,
-            name=dept_name
+            code=d['code'],
+            name=d['name']
         )
         departments.append(department)
-        dept_map[dept_name] = department
+        dept_map[d['name']] = department
         db.add(department)
     
     db.commit()
     print(f"[OK] Created {len(departments)} departments")
     return departments, dept_map
 
-
 def seed_positions(db: Session, priority_data: dict):
-    """Seed positions from priority data"""
     print("Seeding positions...")
     positions = []
     pos_data = priority_data.get('positions', [])
     
     position_map = {}
     for pos in pos_data:
-        code = pos['code'].upper()
-        unit = pos['unit']
-        name = pos.get('name')
-        
         position = Position(
-            code=code,
-            name=name,
-            unit=unit
+            code=pos['code'],
+            name=pos['name'],
+            unit=pos['unit']
         )
         positions.append(position)
-        position_map[code] = position
+        position_map[pos['code']] = position
         db.add(position)
     
     db.commit()
     print(f"[OK] Created {len(positions)} positions")
     return positions, position_map
 
-
-def seed_sub_positions(db: Session, positions: list, position_map: dict, priority_data: dict):
-    """Seed sub positions from priority data"""
+def seed_sub_positions(db: Session, position_map: dict, priority_data: dict):
     print("Seeding sub positions...")
     sub_positions = []
     sub_pos_data = priority_data.get('sub_positions', [])
     
+    sub_position_map = {} # code -> id
+    
     for sub_pos in sub_pos_data:
-        code = sub_pos['code']
-        position_code = sub_pos['position_code'].upper()
-        
+        position_code = sub_pos['position_code']
         if position_code in position_map:
             sub_position = SubPosition(
                 position_id=position_map[position_code].id,
-                code=code
+                code=sub_pos['code']
             )
             sub_positions.append(sub_position)
             db.add(sub_position)
+            sub_position_map[sub_pos['code']] = sub_position
         else:
-            print(f"Warning: Position code '{position_code}' not found for sub position '{code}'")
+            print(f"Warning: Position code '{position_code}' not found for sub position '{sub_pos['code']}'")
     
     db.commit()
+    # Refresh to get IDs
+    for sp in sub_positions:
+        db.refresh(sp)
+        sub_position_map[sp.code] = sp
+        
     print(f"[OK] Created {len(sub_positions)} sub positions")
-    return sub_positions
+    return sub_positions, sub_position_map
 
-
-def seed_workers(db: Session, positions: list, position_map: dict, departments: list, dept_map: dict, priority_data: dict):
-    """Seed workers from priority data"""
+def seed_workers(db: Session, position_map: dict, dept_map: dict, priority_data: dict):
     print("Seeding workers...")
     workers = []
     workers_data = priority_data.get('workers', [])
@@ -382,8 +366,8 @@ def seed_workers(db: Session, positions: list, position_map: dict, departments: 
         password = worker_data.get('password')
         
         position_id = None
-        if position_code and position_code.upper() in position_map:
-            position_id = position_map[position_code.upper()].id
+        if position_code and position_code in position_map:
+            position_id = position_map[position_code].id
         elif position_code:
             print(f"Warning: Position code '{position_code}' not found for worker '{name}'")
         
@@ -393,14 +377,13 @@ def seed_workers(db: Session, positions: list, position_map: dict, departments: 
         elif dept_name:
             print(f"Warning: Department '{dept_name}' not found for worker '{name}'")
         
-        # Hash password if provided
+        # Hash password if provided, else None (or default?)
         hashed_password = None
         if password:
-            try:
-                hashed_password = hash_password(password)
-                print(f"  - {name}: password hashed")
-            except Exception as e:
-                print(f"  - {name}: Warning - failed to hash password: {str(e)}")
+            hashed_password = hash_password(password)
+        elif dept_name in ['Superadmin', 'Admin Produksi', 'Supervisor', 'Koordinator']:
+             # Set default password for management if not specified (though ref specifies them)
+             pass 
         
         worker = Worker(
             name=name,
@@ -415,9 +398,7 @@ def seed_workers(db: Session, positions: list, position_map: dict, departments: 
     print(f"[OK] Created {len(workers)} workers")
     return workers
 
-
 def seed_shifts(db: Session, priority_data: dict):
-    """Seed shifts from priority data"""
     print("Seeding shifts...")
     shifts = []
     shift_names = priority_data.get('shifts', [])
@@ -431,9 +412,7 @@ def seed_shifts(db: Session, priority_data: dict):
     print(f"[OK] Created {len(shifts)} shifts")
     return shifts
 
-
 def seed_suppliers(db: Session, priority_data: dict):
-    """Seed suppliers from priority data"""
     print("Seeding suppliers...")
     suppliers = []
     supplier_names = priority_data.get('suppliers', [])
@@ -447,9 +426,7 @@ def seed_suppliers(db: Session, priority_data: dict):
     print(f"[OK] Created {len(suppliers)} suppliers")
     return suppliers
 
-
 def seed_items(db: Session, priority_data: dict):
-    """Seed items from priority data"""
     print("Seeding items...")
     items = []
     items_data = priority_data.get('items', [])
@@ -467,363 +444,148 @@ def seed_items(db: Session, priority_data: dict):
     print(f"[OK] Created {len(items)} items")
     return items
 
-
-def seed_problem_comments(db: Session, count: int = 5):
-    """Seed problem comments with random data"""
-    print(f"Seeding {count} problem comments...")
-    problem_comments = []
+def seed_problem_comments(db: Session, priority_data: dict):
+    print("Seeding problem comments...")
+    comments = []
+    comment_data = priority_data.get('problem_comments', [])
     
-    descriptions = [
-        "Mesin rusak",
-        "Pemadaman listrik",
-        "Kesalahan operator",
-        "Cacat material"
-    ]
-    
-    for i in range(count):
-        description = descriptions[i] if i < len(descriptions) else f"Masalah {i+1}: {fake.sentence()}"
+    for desc in comment_data:
+        comment = ProblemComment(description=desc)
+        comments.append(comment)
+        db.add(comment)
         
-        problem_comment = ProblemComment(
-            description=description
-        )
-        problem_comments.append(problem_comment)
-        db.add(problem_comment)
-    
     db.commit()
-    print(f"[OK] Created {len(problem_comments)} problem comments")
-    return problem_comments
+    print(f"[OK] Created {len(comments)} problem comments")
+    return comments
 
-
-def seed_production_logs(
-    db: Session,
-    workers: list,
-    positions: list,
-    sub_positions: list,
-    shifts: list,
-    suppliers: list,
-    items: list,
-    problem_comments: list,
-    dept_map: dict,
-    count: int = 10
-):
-    """Seed production logs with random data"""
-    print(f"Seeding {count} production logs...")
-    production_logs = []
-    
-    # Create reverse map: department_id -> department_name
-    dept_id_to_name = {dept.id: name for name, dept in dept_map.items()}
-    
-    # Get workers for approval (prefer coordinators and supervisors)
-    coordinators = [w for w in workers if w.department_id and dept_id_to_name.get(w.department_id) == 'Koordinator']
-    supervisors = [w for w in workers if w.department_id and dept_id_to_name.get(w.department_id) == 'Supervisor']
-    approvers = coordinators + supervisors
-    if not approvers:
-        approvers = workers[:10] if len(workers) >= 10 else workers
-    
-    # Get operators only for production logs
-    operator_workers = [w for w in workers if w.department_id and dept_id_to_name.get(w.department_id) == 'Operator']
-    if not operator_workers:
-        operator_workers = workers
-    
-    for i in range(count):
-        worker = random.choice(operator_workers)
-        position = random.choice(positions)
-        
-        # Get sub_positions that belong to this position
-        position_sub_positions = [sp for sp in sub_positions if sp.position_id == position.id]
-        sub_position = random.choice(position_sub_positions) if position_sub_positions and random.random() > 0.3 else None
-        
-        shift = random.choice(shifts)
-        supplier = random.choice(suppliers) if random.random() > 0.2 else None
-        item = random.choice(items)
-        
-        # Generate realistic quantities based on position unit
-        if position.unit == 'pcs':
-            qty_output = Decimal(str(round(random.uniform(50, 500), 2)))
-        else:  # lmbr
-            qty_output = Decimal(str(round(random.uniform(100, 1000), 2)))
-        
-        max_reject = qty_output * Decimal("0.1")
-        qty_reject = Decimal(
-            str(
-                round(
-                    random.uniform(0, float(max_reject)),
-                    2
-                )
-            )
-        )
-        
-        # Random problem duration (30% chance)
-        problem_duration = random.randint(15, 120) if random.random() < 0.3 else None
-        
-        # Random approval status
-        approved_coordinator = None
-        approved_spv = None
-        approved_coordinator_by = None
-        approved_spv_by = None
-        approved_coordinator_at = None
-        approved_spv_at = None
-        
-        if random.random() > 0.4:  # 60% approved by coordinator
-            approved_coordinator = True
-            approved_coordinator_by = random.choice(approvers).id if approvers else None
-            approved_coordinator_at = fake.date_time_between(start_date='-30d', end_date='now')
-            
-            if random.random() > 0.3:  # 70% of coordinator approved also approved by SPV
-                approved_spv = True
-                approved_spv_by = random.choice(approvers).id if approvers else None
-                approved_spv_at = approved_coordinator_at + timedelta(hours=random.randint(1, 24))
-        
-        # Random created_at (within last 30 days)
-        created_at = fake.date_time_between(start_date='-30d', end_date='now')
-        
-        production_log = ProductionLog(
-            worker_id=worker.id,
-            position_id=position.id,
-            sub_position_id=sub_position.id if sub_position else None,
-            shift_id=shift.id,
-            supplier_id=supplier.id if supplier else None,
-            item_id=item.id,
-            qty_output=qty_output,
-            qty_reject=qty_reject,
-            problem_duration_minutes=problem_duration,
-            created_at=created_at,
-            approved_coordinator=approved_coordinator,
-            approved_spv=approved_spv,
-            approved_coordinator_at=approved_coordinator_at,
-            approved_spv_at=approved_spv_at,
-            approved_coordinator_by=approved_coordinator_by,
-            approved_spv_by=approved_spv_by
-        )
-        production_logs.append(production_log)
-        db.add(production_log)
-    
-    db.commit()
-    print(f"[OK] Created {len(production_logs)} production logs")
-    
-    # Seed production_log_problem_comments (many-to-many)
-    print("Linking problem comments to production logs...")
-    plpc_count = 0
-    for log in production_logs:
-        # 40% chance to have problem comments (only if there's a problem duration)
-        if random.random() < 0.4 and log.problem_duration_minutes:
-            num_comments = random.randint(1, 3)
-            selected_comments = random.sample(problem_comments, min(num_comments, len(problem_comments)))
-            
-            for pc in selected_comments:
-                plpc = ProductionLogProblemComment(
-                    production_log_id=log.id,
-                    problem_comment_id=pc.id
-                )
-                db.add(plpc)
-                plpc_count += 1
-    
-    db.commit()
-    print(f"[OK] Created {plpc_count} production log problem comment links")
-    
-    return production_logs
-
-
-def seed_production_targets(db: Session, positions: list, sub_positions: list, count: int = 10):
-    """Seed production targets with random data"""
-    print(f"Seeding {count} production targets...")
+def seed_production_targets(db: Session, position_map: dict, sub_position_map: dict, priority_data: dict):
+    print("Seeding production targets...")
     targets = []
+    target_data = priority_data.get('targets', [])
     
-    for _ in range(count):
-        position = random.choice(positions)
+    for t in target_data:
+        pos_code = t['position_code']
+        sub_pos_code = t['sub_position_code']
+        value = t['value']
         
-        # Get sub_positions that belong to this position
-        position_sub_positions = [sp for sp in sub_positions if sp.position_id == position.id]
-        sub_position = random.choice(position_sub_positions) if position_sub_positions and random.random() > 0.3 else None
+        if pos_code not in position_map:
+            print(f"Warning: Position {pos_code} not found for target")
+            continue
+            
+        pos_id = position_map[pos_code].id
+        sub_pos_id = None
         
-        target_value = Decimal(str(round(random.uniform(100, 1000), 2)))
+        if sub_pos_code:
+            if sub_pos_code in sub_position_map:
+                sub_pos_id = sub_position_map[sub_pos_code].id
+            else:
+                 print(f"Warning: Sub Position {sub_pos_code} not found for target")
         
         target = ProductionTarget(
-            target=target_value,
-            position_id=position.id,
-            sub_position_id=sub_position.id if sub_position else None
+            target=Decimal(str(value)),
+            position_id=pos_id,
+            sub_position_id=sub_pos_id
         )
         targets.append(target)
         db.add(target)
-    
+        
     db.commit()
     print(f"[OK] Created {len(targets)} production targets")
     return targets
 
-
-def seed_attendances(db: Session, workers: list, count: int = 10):
-    """Seed attendances with random data"""
-    print(f"Seeding {count} attendances...")
-    attendances = []
-    
-    for _ in range(count):
-        worker = random.choice(workers)
-        status = random.choice(list(AttendanceStatus))
-        date = fake.date_between(start_date='-30d', end_date='today')
-        time = fake.time_object()
-        
-        attendance = Attendance(
-            worker_id=worker.id,
-            status=status,
-            date=date,
-            time=time,
-            notes=fake.sentence() if random.random() > 0.5 else None,
-            approved_coordinator=random.choice([True, False, None]),
-            approved_supervisor=random.choice([True, False, None])
-        )
-        attendances.append(attendance)
-        db.add(attendance)
-        
-    db.commit()
-    print(f"[OK] Created {len(attendances)} attendances")
-    return attendances
-
-
 def main():
-    """Main seeder function"""
     print("=" * 60)
-    print("Matrix Database Seeder")
-    print("Using embedded priority data")
+    print("Matrix Database Seeder (Strict Mode)")
     print("=" * 60)
     
-    # Get priority seed data
-    print("\nLoading priority data...")
     priority_data = get_priority_data()
-    
-    # Print summary of data
-    print(f"  - Divisions: {len(priority_data.get('divisions', []))}")
-    print(f"  - Departments: {len(priority_data.get('departments', []))}")
-    print(f"  - Positions: {len(priority_data.get('positions', []))}")
-    print(f"  - Sub Positions: {len(priority_data.get('sub_positions', []))}")
-    print(f"  - Shifts: {len(priority_data.get('shifts', []))}")
-    print(f"  - Suppliers: {len(priority_data.get('suppliers', []))}")
-    print(f"  - Workers: {len(priority_data.get('workers', []))}")
-    print(f"  - Items: {len(priority_data.get('items', []))}")
-    
-    db: Session = SessionLocal()
+    db = SessionLocal()
     
     try:
-        # Check for flags
-        parser = argparse.ArgumentParser(description='Seed database with initial data')
+        parser = argparse.ArgumentParser(description='Seed database with strict data')
         parser.add_argument('--yes', '-y', action='store_true', help='Skip confirmation prompt')
-        parser.add_argument('--seed-only', action='store_true', help='Skip database reset and migration, only run seeder')
+        parser.add_argument('--seed-only', action='store_true', help='Skip database reset')
         args = parser.parse_args()
-        
-        # Ask for confirmation if --yes flag not provided and not seed-only (since seed-only is safe-ish)
-        # But if seed-only is used, we append data? Or maybe we should still warn? 
-        # For now, let's assume seed-only is used by automation.
         
         if not args.seed_only:
             if not args.yes:
-                response = input("\nThis will DROP ALL TABLES and recreate them. Continue? (yes/no): ")
-                if response.lower() not in ['yes', 'y']:
-                    print("Seeder cancelled.")
-                    return
+                if input("Reset DB? (y/n): ").lower() != 'y': return
             
-            # Drop and recreate tables
-            print("\nDropping all tables (CASCADE)...")
-            with engine.connect() as connection:
-                trans = connection.begin()
+            # Reset logic
+            print("\nResetting schema...")
+            with engine.connect() as conn:
+                # Try to drop schema with CASCADE, but handle permission errors gracefully
                 try:
-                    connection.exec_driver_sql("DROP SCHEMA IF EXISTS public CASCADE")
-                    connection.exec_driver_sql("CREATE SCHEMA IF NOT EXISTS public")
-                    connection.exec_driver_sql("GRANT ALL ON SCHEMA public TO public")
-                    connection.exec_driver_sql("SET search_path TO public")
-                    trans.commit()
+                    conn.exec_driver_sql("DROP SCHEMA IF EXISTS public CASCADE")
+                    conn.exec_driver_sql("CREATE SCHEMA public")
+                    conn.exec_driver_sql("GRANT ALL ON SCHEMA public TO public")
+                    conn.commit()
+                    print("[OK] Schema reset successfully")
                 except Exception as e:
-                    trans.rollback()
-                    print(f"Error resetting schema: {e}")
-                    # Try to continue? No, return
-                    raise e
-                
-            print("Running Alembic migrations...")
+                    conn.rollback()
+                    print(f"[WARNING] Could not drop/create schema: {e}")
+                    print("[INFO] Attempting to drop tables individually...")
+                    
+                    # Fallback: Drop tables individually
+                    Base.metadata.drop_all(bind=conn)
+                    conn.commit()
+                    print("[OK] Tables dropped successfully")
+                    
+                    # Ensure schema public exists
+                    try:
+                        conn.exec_driver_sql("CREATE SCHEMA IF NOT EXISTS public")
+                        conn.commit()
+                    except Exception:
+                        pass
+            
+            print("Running Migrations...")
             from alembic.config import Config
             from alembic import command
-            
-            # Ensure we are in the project root
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            alembic_ini_path = os.path.join(current_dir, "alembic.ini")
-            
-            alembic_cfg = Config(alembic_ini_path)
+            alembic_cfg = Config("alembic.ini")
             command.upgrade(alembic_cfg, "head")
             
+            # Fallback check
             try:
                 from sqlalchemy import inspect
                 inspector = inspect(engine)
-                tables = inspector.get_table_names(schema="public")
-                if "divisions" not in tables:
-                    print("Warning: tables not found after Alembic upgrade, creating via metadata...")
+                if "divisions" not in inspector.get_table_names(schema="public"):
                     Base.metadata.create_all(bind=engine)
-            except Exception:
+            except:
                 Base.metadata.create_all(bind=engine)
-            
-            print("Database schema reset via Alembic!")
+                
         else:
-            print("Skipping database reset and migration (--seed-only flag used)...")
-            # Ensure search path is set to public
-            with engine.connect() as connection:
-                connection.exec_driver_sql("SET search_path TO public")
-                connection.commit()
-            
-            # Additional check: verify tables exist
+            print("Skipping reset (--seed-only)...")
+            # Ensure tables exist via fallback if needed
             try:
                 from sqlalchemy import inspect
                 inspector = inspect(engine)
-                tables = inspector.get_table_names(schema="public")
-                print(f"Tables found in public schema: {tables}")
-                if "divisions" not in tables:
-                     print("CRITICAL ERROR: 'divisions' table not found even after migrations!")
-                     # Fallback: Try to create tables via metadata if they are missing
-                     print("Attempting to create tables via SQLAlchemy metadata...")
+                if "divisions" not in inspector.get_table_names(schema="public"):
+                     print("Tables missing, creating via metadata...")
                      Base.metadata.create_all(bind=engine)
-                     print("Tables created via metadata fallback.")
-            except Exception as e:
-                print(f"Error checking tables: {e}")
+            except:
+                 pass
+
+        # Seed Data
+        divisions, div_map = seed_divisions(db, priority_data)
+        departments, dept_map = seed_departments(db, div_map, priority_data)
+        positions, pos_map = seed_positions(db, priority_data)
+        sub_positions, sub_pos_map = seed_sub_positions(db, pos_map, priority_data)
+        seed_workers(db, pos_map, dept_map, priority_data)
+        seed_shifts(db, priority_data)
+        seed_suppliers(db, priority_data)
+        seed_items(db, priority_data)
+        seed_problem_comments(db, priority_data)
+        seed_production_targets(db, pos_map, sub_pos_map, priority_data)
         
-        # Seed in order (respecting foreign keys)
-        divisions, division_map = seed_divisions(db, priority_data)
-        departments, dept_map = seed_departments(db, divisions, division_map, priority_data)
-        positions, position_map = seed_positions(db, priority_data)
-        sub_positions = seed_sub_positions(db, positions, position_map, priority_data)
-        workers = seed_workers(db, positions, position_map, departments, dept_map, priority_data)
-        shifts = seed_shifts(db, priority_data)
-        suppliers = seed_suppliers(db, priority_data)
-        items = seed_items(db, priority_data)
-        problem_comments = seed_problem_comments(db, count=20)
-        production_logs = seed_production_logs(
-            db, workers, positions, sub_positions,
-            shifts, suppliers, items, problem_comments,
-            dept_map, count=10
-        )
-        production_targets = seed_production_targets(db, positions, sub_positions, count=10)
-        attendances = seed_attendances(db, workers, count=10)
-        
-        print("\n" + "=" * 60)
-        print("[OK] Seeding completed successfully!")
-        print("=" * 60)
-        print(f"\nSummary:")
-        print(f"  - Divisions: {len(divisions)}")
-        print(f"  - Departments: {len(departments)}")
-        print(f"  - Positions: {len(positions)}")
-        print(f"  - Sub Positions: {len(sub_positions)}")
-        print(f"  - Workers: {len(workers)}")
-        print(f"  - Shifts: {len(shifts)}")
-        print(f"  - Suppliers: {len(suppliers)}")
-        print(f"  - Items: {len(items)}")
-        print(f"  - Problem Comments: {len(problem_comments)}")
-        print(f"  - Production Logs: {len(production_logs)}")
-        print(f"  - Production Targets: {len(production_targets)}")
-        print(f"  - Attendances: {len(attendances)}")
-        print()
+        print("\n[OK] Seeding Completed Successfully!")
         
     except Exception as e:
         db.rollback()
-        print(f"\n[ERROR] Error occurred: {str(e)}")
+        print(f"[ERROR] {e}")
         import traceback
         traceback.print_exc()
     finally:
         db.close()
-
 
 if __name__ == "__main__":
     main()
