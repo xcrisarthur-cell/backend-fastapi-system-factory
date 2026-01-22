@@ -1,89 +1,91 @@
 from fastapi import APIRouter, HTTPException
 import psutil
-import shutil
 import time
-import subprocess
 from datetime import timedelta
+import platform
+import os
 
 router = APIRouter(
     prefix="/system",
-    tags=["System Monitor"]
+    tags=["System Monitoring"]
 )
 
-def get_service_status(service_name: str) -> str:
-    """Check if a systemd service is active."""
-    try:
-        # Run systemctl is-active [service_name]
-        result = subprocess.run(
-            ["systemctl", "is-active", service_name],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        return result.stdout.strip()
-    except Exception:
-        return "unknown"
-
-def bytes_to_gb(bytes_value):
-    """Convert bytes to GB with 2 decimal places."""
-    return round(bytes_value / (1024 ** 3), 2)
+def get_size(bytes, suffix="B"):
+    """
+    Scale bytes to its proper format
+    e.g:
+        1253656 => '1.20MB'
+        1253656678 => '1.17GB'
+    """
+    factor = 1024
+    for unit in ["", "K", "M", "G", "T", "P"]:
+        if bytes < factor:
+            return f"{bytes:.2f}{unit}{suffix}"
+        bytes /= factor
 
 @router.get("/status")
 async def get_system_status():
     try:
-        # 1. CPU Usage
-        cpu_percent = psutil.cpu_percent(interval=0.1)
+        # CPU
+        cpu_usage = psutil.cpu_percent(interval=1)
+        cpu_freq = psutil.cpu_freq()
+        cpu_count = psutil.cpu_count(logical=True)
         
-        # 2. Memory (RAM)
-        memory = psutil.virtual_memory()
-        ram_total_gb = bytes_to_gb(memory.total)
-        ram_used_gb = bytes_to_gb(memory.used)
-        ram_available_gb = bytes_to_gb(memory.available)
-        ram_percent = memory.percent
-
-        # 3. Disk Usage (Root Partition)
-        disk = shutil.disk_usage("/")
-        disk_total_gb = bytes_to_gb(disk.total)
-        disk_used_gb = bytes_to_gb(disk.used)
-        disk_free_gb = bytes_to_gb(disk.free)
-        disk_percent = round((disk.used / disk.total) * 100, 1)
-
-        # 4. System Uptime
-        uptime_seconds = time.time() - psutil.boot_time()
-        uptime_string = str(timedelta(seconds=int(uptime_seconds)))
-
-        # 5. Services Status (Only works on Linux with systemd)
+        # Memory
+        svmem = psutil.virtual_memory()
+        swap = psutil.swap_memory()
+        
+        # Disk
+        disk_partitions = psutil.disk_partitions()
+        disk_usage = psutil.disk_usage('/')
+        
+        # Uptime
+        boot_time_timestamp = psutil.boot_time()
+        bt = time.time() - boot_time_timestamp
+        uptime = str(timedelta(seconds=bt))
+        
+        # Service Checks (Basic process check)
         services = {
-            "nginx": get_service_status("nginx"),
-            "postgresql": get_service_status("postgresql"),
-            "fastapi_app": get_service_status("fastapi_app")
+            "nginx": "stopped",
+            "postgres": "stopped",
+            "fastapi": "running" # Self check
         }
+        
+        for proc in psutil.process_iter(['name']):
+            try:
+                if 'nginx' in proc.info['name']:
+                    services['nginx'] = 'active'
+                if 'postgres' in proc.info['name']:
+                    services['postgres'] = 'active'
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
 
         return {
-            "status": "success",
-            "timestamp": int(time.time()),
             "system": {
+                "os": f"{platform.system()} {platform.release()}",
                 "cpu": {
-                    "usage_percent": cpu_percent,
-                    "count_logical": psutil.cpu_count(),
-                    "count_physical": psutil.cpu_count(logical=False)
+                    "usage_percent": cpu_usage,
+                    "count_logical": cpu_count,
+                    "frequency_current": f"{cpu_freq.current:.2f}Mhz" if cpu_freq else "N/A"
                 },
                 "memory": {
-                    "total_gb": ram_total_gb,
-                    "used_gb": ram_used_gb,
-                    "available_gb": ram_available_gb,
-                    "percent": ram_percent
+                    "total": get_size(svmem.total),
+                    "available": get_size(svmem.available),
+                    "used": get_size(svmem.used),
+                    "percent": svmem.percent,
+                    "used_gb": round(svmem.used / (1024**3), 2),
+                    "total_gb": round(svmem.total / (1024**3), 2)
                 },
                 "disk_root": {
-                    "total_gb": disk_total_gb,
-                    "used_gb": disk_used_gb,
-                    "free_gb": disk_free_gb,
-                    "percent": disk_percent
+                    "total": get_size(disk_usage.total),
+                    "used": get_size(disk_usage.used),
+                    "free": get_size(disk_usage.free),
+                    "percent": disk_usage.percent,
+                    "free_gb": round(disk_usage.free / (1024**3), 2)
                 },
-                "uptime": uptime_string
+                "uptime": uptime
             },
             "services": services
         }
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
