@@ -11,7 +11,7 @@ from app.routers import (
     problem_comment, production_log,
     division, department,
     production_target, attendance,
-    production_plan
+    production_plan, system_monitor
 )
 
 app = FastAPI(
@@ -102,3 +102,4 @@ app.include_router(production_log.router)
 app.include_router(production_target.router)
 app.include_router(attendance.router)
 app.include_router(production_plan.router)
+app.include_router(system_monitor.router)

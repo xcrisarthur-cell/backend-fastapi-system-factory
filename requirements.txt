@@ -7,3 +7,4 @@ pydantic
 alembic
 bcrypt>=4.0.0
 passlib[bcrypt]
+psutil>=5.9.0
